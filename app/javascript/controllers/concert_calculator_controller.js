@@ -83,11 +83,22 @@ export default class extends Controller {
     this.calculate()
   }
 
-  // ── 刪除 / 變更 ──────────────────────────────────────
+  // ── 刪除 / 暫停 / 變更 ───────────────────────────────
 
   removeRow(event) {
     event.preventDefault()
     event.currentTarget.closest("[data-row-id]").remove()
+    this.calculate()
+  }
+
+  toggleRow(event) {
+    event.preventDefault()
+    const row = event.currentTarget.closest("[data-row-id]")
+    const nowDisabled = row.dataset.disabled !== "true"
+    row.dataset.disabled = String(nowDisabled)
+    row.classList.toggle("opacity-40", nowDisabled)
+    event.currentTarget.innerHTML = nowDisabled ? this.iconPlay() : this.iconPause()
+    event.currentTarget.title = nowDisabled ? "恢復計算" : "暫時排除"
     this.calculate()
   }
 
@@ -102,6 +113,7 @@ export default class extends Controller {
     let signingTotal = 0
 
     this.taiwanListTarget.querySelectorAll("[data-row-id]").forEach(row => {
+      if (row.dataset.disabled === "true") { row.querySelector("[data-cost='total']").textContent = "—"; return }
       const shows = parseInt(row.querySelector("[data-field='shows']").value) || 1
       const costs = this.computeCosts("taiwan", shows, 0)
       row.querySelector("[data-cost='total']").textContent = this.format(costs.total)
@@ -111,6 +123,7 @@ export default class extends Controller {
     })
 
     this.koreaListTarget.querySelectorAll("[data-row-id]").forEach(row => {
+      if (row.dataset.disabled === "true") { row.querySelector("[data-cost='total']").textContent = "—"; return }
       const shows = parseInt(row.querySelector("[data-field='shows']").value) || 1
       const nights = parseInt(row.querySelector("[data-field='nights']").value) || 1
       const costs = this.computeCosts("korea", shows, nights)
@@ -123,6 +136,7 @@ export default class extends Controller {
     })
 
     this.japanListTarget.querySelectorAll("[data-row-id]").forEach(row => {
+      if (row.dataset.disabled === "true") { row.querySelector("[data-cost='total']").textContent = "—"; return }
       const shows = parseInt(row.querySelector("[data-field='shows']").value) || 1
       const nights = parseInt(row.querySelector("[data-field='nights']").value) || 1
       const costs = this.computeCosts("japan", shows, nights)
@@ -135,6 +149,7 @@ export default class extends Controller {
     })
 
     this.signingListTarget.querySelectorAll("[data-row-id]").forEach(row => {
+      if (row.dataset.disabled === "true") { row.querySelector("[data-cost='total']").textContent = "—"; return }
       const type = row.dataset.rowType
       const count = parseInt(row.querySelector("[data-field='count']").value) || 1
       const cost = (type === "onstage" ? this.settings.signing.onstage : this.settings.signing.audience) * count
@@ -144,6 +159,7 @@ export default class extends Controller {
 
     let otherTotal = 0
     this.otherListTarget.querySelectorAll("[data-row-id]").forEach(row => {
+      if (row.dataset.disabled === "true") { row.querySelector("[data-cost='total']").textContent = "—"; return }
       const amount = parseInt(row.querySelector("[data-field='amount']").value) || 0
       row.querySelector("[data-cost='total']").textContent = this.format(amount)
       otherTotal += amount
@@ -260,30 +276,37 @@ export default class extends Controller {
     }
 
     this.taiwanListTarget.querySelectorAll("[data-row-id]").forEach(row => {
-      state.taiwan.push({ shows: parseInt(row.querySelector("[data-field='shows']").value) || 1 })
+      state.taiwan.push({
+        shows: parseInt(row.querySelector("[data-field='shows']").value) || 1,
+        disabled: row.dataset.disabled === "true"
+      })
     })
     this.koreaListTarget.querySelectorAll("[data-row-id]").forEach(row => {
       state.korea.push({
         shows: parseInt(row.querySelector("[data-field='shows']").value) || 1,
-        nights: parseInt(row.querySelector("[data-field='nights']").value) || 1
+        nights: parseInt(row.querySelector("[data-field='nights']").value) || 1,
+        disabled: row.dataset.disabled === "true"
       })
     })
     this.japanListTarget.querySelectorAll("[data-row-id]").forEach(row => {
       state.japan.push({
         shows: parseInt(row.querySelector("[data-field='shows']").value) || 1,
-        nights: parseInt(row.querySelector("[data-field='nights']").value) || 1
+        nights: parseInt(row.querySelector("[data-field='nights']").value) || 1,
+        disabled: row.dataset.disabled === "true"
       })
     })
     this.signingListTarget.querySelectorAll("[data-row-id]").forEach(row => {
       state.signing.push({
         type: row.dataset.rowType,
-        count: parseInt(row.querySelector("[data-field='count']").value) || 1
+        count: parseInt(row.querySelector("[data-field='count']").value) || 1,
+        disabled: row.dataset.disabled === "true"
       })
     })
     this.otherListTarget.querySelectorAll("[data-row-id]").forEach(row => {
       state.other.push({
         label: row.querySelector("[data-field='label']").value || "",
-        amount: parseInt(row.querySelector("[data-field='amount']").value) || 0
+        amount: parseInt(row.querySelector("[data-field='amount']").value) || 0,
+        disabled: row.dataset.disabled === "true"
       })
     })
 
@@ -300,23 +323,23 @@ export default class extends Controller {
 
       state.taiwan?.forEach(item => {
         this.rowCount++
-        this.taiwanListTarget.insertAdjacentHTML("beforeend", this.buildTaiwanRow(this.rowCount, item.shows))
+        this.taiwanListTarget.insertAdjacentHTML("beforeend", this.buildTaiwanRow(this.rowCount, item.shows, item.disabled))
       })
       state.korea?.forEach(item => {
         this.rowCount++
-        this.koreaListTarget.insertAdjacentHTML("beforeend", this.buildOverseasRow(this.rowCount, "korea", item.shows, item.nights))
+        this.koreaListTarget.insertAdjacentHTML("beforeend", this.buildOverseasRow(this.rowCount, "korea", item.shows, item.nights, item.disabled))
       })
       state.japan?.forEach(item => {
         this.rowCount++
-        this.japanListTarget.insertAdjacentHTML("beforeend", this.buildOverseasRow(this.rowCount, "japan", item.shows, item.nights))
+        this.japanListTarget.insertAdjacentHTML("beforeend", this.buildOverseasRow(this.rowCount, "japan", item.shows, item.nights, item.disabled))
       })
       state.signing?.forEach(item => {
         this.rowCount++
-        this.signingListTarget.insertAdjacentHTML("beforeend", this.buildSigningRow(this.rowCount, item.type, item.count))
+        this.signingListTarget.insertAdjacentHTML("beforeend", this.buildSigningRow(this.rowCount, item.type, item.count, item.disabled))
       })
       state.other?.forEach(item => {
         this.rowCount++
-        this.otherListTarget.insertAdjacentHTML("beforeend", this.buildOtherRow(this.rowCount, item.label, item.amount))
+        this.otherListTarget.insertAdjacentHTML("beforeend", this.buildOtherRow(this.rowCount, item.label, item.amount, item.disabled))
       })
 
       if (state.monthlySavings) {
@@ -333,15 +356,25 @@ export default class extends Controller {
     }
   }
 
+  // ── Icons ─────────────────────────────────────────────
+
+  iconPause() {
+    return `<svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>`
+  }
+
+  iconPlay() {
+    return `<svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`
+  }
+
   // ── HTML Builders ─────────────────────────────────────
 
-  buildTaiwanRow(id, shows) {
+  buildTaiwanRow(id, shows, disabled = false) {
     const showsOptions = [1, 2, 3, 4]
       .map(n => `<option value="${n}" ${n == shows ? "selected" : ""}>${n} 場</option>`)
       .join("")
 
     return `
-      <div data-row-id="${id}" class="flex items-center gap-3 bg-gray-50 rounded-lg px-4 py-3">
+      <div data-row-id="${id}" data-disabled="${disabled}" class="flex items-center gap-3 bg-gray-50 rounded-lg px-4 py-3 transition-opacity ${disabled ? 'opacity-40' : ''}">
         <select
           data-field="shows"
           data-action="change->concert-calculator#inputChanged"
@@ -350,14 +383,19 @@ export default class extends Controller {
         <span class="flex-1"></span>
         <span data-cost="total" class="text-sm font-semibold text-gray-700 tabular-nums"></span>
         <button
+          data-action="click->concert-calculator#toggleRow"
+          title="${disabled ? '恢復計算' : '暫時排除'}"
+          class="text-gray-300 hover:text-amber-400 transition-colors shrink-0"
+        >${disabled ? this.iconPlay() : this.iconPause()}</button>
+        <button
           data-action="click->concert-calculator#removeRow"
-          class="text-gray-300 hover:text-red-400 text-xl leading-none ml-1 transition-colors"
+          class="text-gray-300 hover:text-red-400 text-xl leading-none transition-colors"
         >&times;</button>
       </div>
     `
   }
 
-  buildOverseasRow(id, location, shows, nights) {
+  buildOverseasRow(id, location, shows, nights, disabled = false) {
     const showsOptions = [1, 2, 3, 4]
       .map(n => `<option value="${n}" ${n == shows ? "selected" : ""}>${n} 場</option>`)
       .join("")
@@ -369,7 +407,7 @@ export default class extends Controller {
     const ring = location === "korea" ? "focus:ring-rose-400" : "focus:ring-fuchsia-400"
 
     return `
-      <div data-row-id="${id}" class="flex items-center gap-3 bg-gray-50 rounded-lg px-4 py-3">
+      <div data-row-id="${id}" data-disabled="${disabled}" class="flex items-center gap-3 bg-gray-50 rounded-lg px-4 py-3 transition-opacity ${disabled ? 'opacity-40' : ''}">
         <select
           data-field="nights"
           data-action="change->concert-calculator#inputChanged"
@@ -383,16 +421,21 @@ export default class extends Controller {
         <span class="flex-1"></span>
         <span data-cost="total" class="text-sm font-semibold text-gray-700 tabular-nums"></span>
         <button
+          data-action="click->concert-calculator#toggleRow"
+          title="${disabled ? '恢復計算' : '暫時排除'}"
+          class="text-gray-300 hover:text-amber-400 transition-colors shrink-0"
+        >${disabled ? this.iconPlay() : this.iconPause()}</button>
+        <button
           data-action="click->concert-calculator#removeRow"
-          class="text-gray-300 hover:text-red-400 text-xl leading-none ml-1 transition-colors"
+          class="text-gray-300 hover:text-red-400 text-xl leading-none transition-colors"
         >&times;</button>
       </div>
     `
   }
 
-  buildOtherRow(id, label = "", amount = "") {
+  buildOtherRow(id, label = "", amount = "", disabled = false) {
     return `
-      <div data-row-id="${id}" class="flex items-center gap-3 bg-gray-50 rounded-lg px-4 py-3">
+      <div data-row-id="${id}" data-disabled="${disabled}" class="flex items-center gap-3 bg-gray-50 rounded-lg px-4 py-3 transition-opacity ${disabled ? 'opacity-40' : ''}">
         <input
           type="text"
           data-field="label"
@@ -413,14 +456,19 @@ export default class extends Controller {
         />
         <span data-cost="total" class="text-sm font-semibold text-gray-700 tabular-nums w-28 text-right shrink-0">NT$ 0</span>
         <button
+          data-action="click->concert-calculator#toggleRow"
+          title="${disabled ? '恢復計算' : '暫時排除'}"
+          class="text-gray-300 hover:text-amber-400 transition-colors shrink-0"
+        >${disabled ? this.iconPlay() : this.iconPause()}</button>
+        <button
           data-action="click->concert-calculator#removeRow"
-          class="text-gray-300 hover:text-red-400 text-xl leading-none ml-1 transition-colors"
+          class="text-gray-300 hover:text-red-400 text-xl leading-none transition-colors"
         >&times;</button>
       </div>
     `
   }
 
-  buildSigningRow(id, type, count) {
+  buildSigningRow(id, type, count, disabled = false) {
     const countOptions = Array.from({ length: 10 }, (_, i) => i + 1)
       .map(n => `<option value="${n}" ${n == count ? "selected" : ""}>${n} 次</option>`)
       .join("")
@@ -430,7 +478,7 @@ export default class extends Controller {
       : `<span class="text-xs font-medium bg-indigo-100 text-indigo-600 px-2.5 py-1 rounded-full whitespace-nowrap">觀禮</span>`
 
     return `
-      <div data-row-id="${id}" data-row-type="${type}" class="flex items-center gap-3 bg-gray-50 rounded-lg px-4 py-3">
+      <div data-row-id="${id}" data-row-type="${type}" data-disabled="${disabled}" class="flex items-center gap-3 bg-gray-50 rounded-lg px-4 py-3 transition-opacity ${disabled ? 'opacity-40' : ''}">
         ${badge}
         <select
           data-field="count"
@@ -440,8 +488,13 @@ export default class extends Controller {
         <span class="flex-1"></span>
         <span data-cost="total" class="text-sm font-semibold text-gray-700 tabular-nums"></span>
         <button
+          data-action="click->concert-calculator#toggleRow"
+          title="${disabled ? '恢復計算' : '暫時排除'}"
+          class="text-gray-300 hover:text-amber-400 transition-colors shrink-0"
+        >${disabled ? this.iconPlay() : this.iconPause()}</button>
+        <button
           data-action="click->concert-calculator#removeRow"
-          class="text-gray-300 hover:text-red-400 text-xl leading-none ml-1 transition-colors"
+          class="text-gray-300 hover:text-red-400 text-xl leading-none transition-colors"
         >&times;</button>
       </div>
     `
