@@ -11,6 +11,88 @@
     <!-- 左：各類別區塊 -->
     <div class="lg:col-span-2 space-y-4">
 
+      <!-- 費用設定 -->
+      <details class="bg-white rounded-xl border border-gray-200 shadow-sm group">
+        <summary class="px-6 py-4 cursor-pointer flex items-center gap-2 select-none list-none">
+          <svg class="w-4 h-4 text-gray-400 transition-transform group-open:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          <span class="text-sm font-semibold text-gray-700">費用設定</span>
+          <span class="text-xs text-gray-400">（點開可依個人情況調整基準費用）</span>
+        </summary>
+        <div class="px-6 pb-6 border-t border-gray-100 pt-4 grid grid-cols-2 gap-x-6 gap-y-4">
+
+          <div>
+            <div class="text-xs font-medium text-gray-500 mb-2">台灣場</div>
+            <div class="space-y-2">
+              <div class="flex items-center justify-between gap-2">
+                <label class="text-xs text-gray-500 whitespace-nowrap">門票/場</label>
+                <input type="number" data-setting-group="taiwan" data-setting-field="ticket" value="6000" min="0" step="500" data-action="input->concert-calculator#settingChanged" class="w-28 text-sm border border-gray-200 rounded-lg px-2 py-1 text-right focus:outline-none focus:ring-2 focus:ring-blue-400">
+              </div>
+              <div class="flex items-center justify-between gap-2">
+                <label class="text-xs text-gray-500 whitespace-nowrap">交通（固定）</label>
+                <input type="number" data-setting-group="taiwan" data-setting-field="transport" value="3000" min="0" step="500" data-action="input->concert-calculator#settingChanged" class="w-28 text-sm border border-gray-200 rounded-lg px-2 py-1 text-right focus:outline-none focus:ring-2 focus:ring-blue-400">
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="text-xs font-medium text-gray-500 mb-2">海外共用</div>
+            <div class="space-y-2">
+              <div class="flex items-center justify-between gap-2">
+                <label class="text-xs text-gray-500 whitespace-nowrap">住宿/晚</label>
+                <input type="number" data-setting-group="shared" data-setting-field="accommodation" value="2000" min="0" step="500" data-action="input->concert-calculator#settingChanged" class="w-28 text-sm border border-gray-200 rounded-lg px-2 py-1 text-right focus:outline-none focus:ring-2 focus:ring-blue-400">
+              </div>
+              <div class="flex items-center justify-between gap-2">
+                <label class="text-xs text-gray-500 whitespace-nowrap">伙食/天</label>
+                <input type="number" data-setting-group="shared" data-setting-field="food" value="1000" min="0" step="500" data-action="input->concert-calculator#settingChanged" class="w-28 text-sm border border-gray-200 rounded-lg px-2 py-1 text-right focus:outline-none focus:ring-2 focus:ring-blue-400">
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="text-xs font-medium text-gray-500 mb-2">韓國場</div>
+            <div class="space-y-2">
+              <div class="flex items-center justify-between gap-2">
+                <label class="text-xs text-gray-500 whitespace-nowrap">門票/場</label>
+                <input type="number" data-setting-group="korea" data-setting-field="ticket" value="4000" min="0" step="500" data-action="input->concert-calculator#settingChanged" class="w-28 text-sm border border-gray-200 rounded-lg px-2 py-1 text-right focus:outline-none focus:ring-2 focus:ring-blue-400">
+              </div>
+              <div class="flex items-center justify-between gap-2">
+                <label class="text-xs text-gray-500 whitespace-nowrap">交通（固定）</label>
+                <input type="number" data-setting-group="korea" data-setting-field="transport" value="10000" min="0" step="500" data-action="input->concert-calculator#settingChanged" class="w-28 text-sm border border-gray-200 rounded-lg px-2 py-1 text-right focus:outline-none focus:ring-2 focus:ring-blue-400">
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="text-xs font-medium text-gray-500 mb-2">日本場</div>
+            <div class="space-y-2">
+              <div class="flex items-center justify-between gap-2">
+                <label class="text-xs text-gray-500 whitespace-nowrap">門票/場</label>
+                <input type="number" data-setting-group="japan" data-setting-field="ticket" value="5500" min="0" step="500" data-action="input->concert-calculator#settingChanged" class="w-28 text-sm border border-gray-200 rounded-lg px-2 py-1 text-right focus:outline-none focus:ring-2 focus:ring-blue-400">
+              </div>
+              <div class="flex items-center justify-between gap-2">
+                <label class="text-xs text-gray-500 whitespace-nowrap">交通（固定）</label>
+                <input type="number" data-setting-group="japan" data-setting-field="transport" value="13000" min="0" step="500" data-action="input->concert-calculator#settingChanged" class="w-28 text-sm border border-gray-200 rounded-lg px-2 py-1 text-right focus:outline-none focus:ring-2 focus:ring-blue-400">
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="text-xs font-medium text-gray-500 mb-2">簽售會</div>
+            <div class="space-y-2">
+              <div class="flex items-center justify-between gap-2">
+                <label class="text-xs text-gray-500 whitespace-nowrap">上台</label>
+                <input type="number" data-setting-group="signing" data-setting-field="onstage" value="70000" min="0" step="1000" data-action="input->concert-calculator#settingChanged" class="w-28 text-sm border border-gray-200 rounded-lg px-2 py-1 text-right focus:outline-none focus:ring-2 focus:ring-blue-400">
+              </div>
+              <div class="flex items-center justify-between gap-2">
+                <label class="text-xs text-gray-500 whitespace-nowrap">觀禮</label>
+                <input type="number" data-setting-group="signing" data-setting-field="audience" value="15000" min="0" step="1000" data-action="input->concert-calculator#settingChanged" class="w-28 text-sm border border-gray-200 rounded-lg px-2 py-1 text-right focus:outline-none focus:ring-2 focus:ring-blue-400">
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </details>
+
       <!-- 台灣場 -->
       <div class="bg-white rounded-xl border border-gray-200 shadow-sm">
         <div class="px-6 pt-6 pb-4 pr-6">

@@ -10,9 +10,33 @@ export default class extends Controller {
 
   rowCount = 0
 
+  settings = {
+    taiwan:  { ticket: 6000,  transport: 3000  },
+    korea:   { ticket: 4000,  transport: 10000 },
+    japan:   { ticket: 5500,  transport: 13000 },
+    shared:  { accommodation: 2000, food: 1000 },
+    signing: { onstage: 70000, audience: 15000 }
+  }
+
   connect() {
     this.loadState()
     this.calculate()
+  }
+
+  settingChanged(event) {
+    const group = event.currentTarget.dataset.settingGroup
+    const field = event.currentTarget.dataset.settingField
+    const value = parseInt(event.currentTarget.value) || 0
+    if (this.settings[group]) this.settings[group][field] = value
+    this.calculate()
+  }
+
+  updateSettingsInputs() {
+    this.element.querySelectorAll("[data-setting-group]").forEach(input => {
+      const g = input.dataset.settingGroup
+      const f = input.dataset.settingField
+      if (this.settings[g]?.[f] !== undefined) input.value = this.settings[g][f]
+    })
   }
 
   // ── 新增 ─────────────────────────────────────────────
@@ -113,7 +137,7 @@ export default class extends Controller {
     this.signingListTarget.querySelectorAll("[data-row-id]").forEach(row => {
       const type = row.dataset.rowType
       const count = parseInt(row.querySelector("[data-field='count']").value) || 1
-      const cost = (type === "onstage" ? 70000 : 15000) * count
+      const cost = (type === "onstage" ? this.settings.signing.onstage : this.settings.signing.audience) * count
       row.querySelector("[data-cost='total']").textContent = this.format(cost)
       signingTotal += cost
     })
@@ -195,25 +219,24 @@ export default class extends Controller {
   // ── 費用公式 ──────────────────────────────────────────
 
   computeCosts(location, shows, nights) {
+    const s = this.settings
     let ticket, transport, accommodation, food, misc
 
     if (location === "taiwan") {
-      ticket = 6000 * shows
-      transport = 3000
-      accommodation = 0
-      food = 0
-      misc = 200
+      ticket = s.taiwan.ticket * shows
+      transport = s.taiwan.transport
+      accommodation = 0; food = 0; misc = 200
     } else if (location === "korea") {
-      ticket = 4000 * shows
-      transport = 10000
-      accommodation = 2000 * nights
-      food = 1000 * (nights + 1)
+      ticket = s.korea.ticket * shows
+      transport = s.korea.transport
+      accommodation = s.shared.accommodation * nights
+      food = s.shared.food * (nights + 1)
       misc = nights === 1 ? 500 : 1500
     } else if (location === "japan") {
-      ticket = 5500 * shows
-      transport = 13000
-      accommodation = 2000 * nights
-      food = 1000 * (nights + 1)
+      ticket = s.japan.ticket * shows
+      transport = s.japan.transport
+      accommodation = s.shared.accommodation * nights
+      food = s.shared.food * (nights + 1)
       misc = nights === 1 ? 1000 : 2000
     }
 
@@ -264,6 +287,7 @@ export default class extends Controller {
       })
     })
 
+    state.settings = this.settings
     localStorage.setItem("concert_calculator_state", JSON.stringify(state))
   }
 
@@ -297,6 +321,12 @@ export default class extends Controller {
 
       if (state.monthlySavings) {
         this.monthlySavingsTarget.value = state.monthlySavings
+      }
+      if (state.settings) {
+        Object.keys(state.settings).forEach(group => {
+          if (this.settings[group]) Object.assign(this.settings[group], state.settings[group])
+        })
+        this.updateSettingsInputs()
       }
     } catch {
       localStorage.removeItem("concert_calculator_state")

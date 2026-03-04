@@ -30,6 +30,88 @@
         <!-- 左：各類別區塊 -->
         <div class="lg:col-span-2 space-y-4">
 
+          <!-- 費用設定 -->
+          <details class="bg-white rounded-xl border border-gray-200 shadow-sm group">
+            <summary class="px-6 py-4 cursor-pointer flex items-center gap-2 select-none list-none">
+              <svg class="w-4 h-4 text-gray-400 transition-transform group-open:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+              <span class="text-sm font-semibold text-gray-700">費用設定</span>
+              <span class="text-xs text-gray-400">（點開可依個人情況調整基準費用）</span>
+            </summary>
+            <div class="px-6 pb-6 border-t border-gray-100 pt-4 grid grid-cols-2 gap-x-6 gap-y-4">
+
+              <div>
+                <div class="text-xs font-medium text-gray-500 mb-2">台灣場</div>
+                <div class="space-y-2">
+                  <div class="flex items-center justify-between gap-2">
+                    <label class="text-xs text-gray-500 whitespace-nowrap">門票/場</label>
+                    <input type="number" data-setting-group="taiwan" data-setting-field="ticket" value="6000" min="0" step="500" data-action="input->concert-calculator#settingChanged" class="w-28 text-sm border border-gray-200 rounded-lg px-2 py-1 text-right focus:outline-none focus:ring-2 focus:ring-blue-400">
+                  </div>
+                  <div class="flex items-center justify-between gap-2">
+                    <label class="text-xs text-gray-500 whitespace-nowrap">交通（固定）</label>
+                    <input type="number" data-setting-group="taiwan" data-setting-field="transport" value="3000" min="0" step="500" data-action="input->concert-calculator#settingChanged" class="w-28 text-sm border border-gray-200 rounded-lg px-2 py-1 text-right focus:outline-none focus:ring-2 focus:ring-blue-400">
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <div class="text-xs font-medium text-gray-500 mb-2">海外共用</div>
+                <div class="space-y-2">
+                  <div class="flex items-center justify-between gap-2">
+                    <label class="text-xs text-gray-500 whitespace-nowrap">住宿/晚</label>
+                    <input type="number" data-setting-group="shared" data-setting-field="accommodation" value="2000" min="0" step="500" data-action="input->concert-calculator#settingChanged" class="w-28 text-sm border border-gray-200 rounded-lg px-2 py-1 text-right focus:outline-none focus:ring-2 focus:ring-blue-400">
+                  </div>
+                  <div class="flex items-center justify-between gap-2">
+                    <label class="text-xs text-gray-500 whitespace-nowrap">伙食/天</label>
+                    <input type="number" data-setting-group="shared" data-setting-field="food" value="1000" min="0" step="500" data-action="input->concert-calculator#settingChanged" class="w-28 text-sm border border-gray-200 rounded-lg px-2 py-1 text-right focus:outline-none focus:ring-2 focus:ring-blue-400">
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <div class="text-xs font-medium text-gray-500 mb-2">韓國場</div>
+                <div class="space-y-2">
+                  <div class="flex items-center justify-between gap-2">
+                    <label class="text-xs text-gray-500 whitespace-nowrap">門票/場</label>
+                    <input type="number" data-setting-group="korea" data-setting-field="ticket" value="4000" min="0" step="500" data-action="input->concert-calculator#settingChanged" class="w-28 text-sm border border-gray-200 rounded-lg px-2 py-1 text-right focus:outline-none focus:ring-2 focus:ring-blue-400">
+                  </div>
+                  <div class="flex items-center justify-between gap-2">
+                    <label class="text-xs text-gray-500 whitespace-nowrap">交通（固定）</label>
+                    <input type="number" data-setting-group="korea" data-setting-field="transport" value="10000" min="0" step="500" data-action="input->concert-calculator#settingChanged" class="w-28 text-sm border border-gray-200 rounded-lg px-2 py-1 text-right focus:outline-none focus:ring-2 focus:ring-blue-400">
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <div class="text-xs font-medium text-gray-500 mb-2">日本場</div>
+                <div class="space-y-2">
+                  <div class="flex items-center justify-between gap-2">
+                    <label class="text-xs text-gray-500 whitespace-nowrap">門票/場</label>
+                    <input type="number" data-setting-group="japan" data-setting-field="ticket" value="5500" min="0" step="500" data-action="input->concert-calculator#settingChanged" class="w-28 text-sm border border-gray-200 rounded-lg px-2 py-1 text-right focus:outline-none focus:ring-2 focus:ring-blue-400">
+                  </div>
+                  <div class="flex items-center justify-between gap-2">
+                    <label class="text-xs text-gray-500 whitespace-nowrap">交通（固定）</label>
+                    <input type="number" data-setting-group="japan" data-setting-field="transport" value="13000" min="0" step="500" data-action="input->concert-calculator#settingChanged" class="w-28 text-sm border border-gray-200 rounded-lg px-2 py-1 text-right focus:outline-none focus:ring-2 focus:ring-blue-400">
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <div class="text-xs font-medium text-gray-500 mb-2">簽售會</div>
+                <div class="space-y-2">
+                  <div class="flex items-center justify-between gap-2">
+                    <label class="text-xs text-gray-500 whitespace-nowrap">上台</label>
+                    <input type="number" data-setting-group="signing" data-setting-field="onstage" value="70000" min="0" step="1000" data-action="input->concert-calculator#settingChanged" class="w-28 text-sm border border-gray-200 rounded-lg px-2 py-1 text-right focus:outline-none focus:ring-2 focus:ring-blue-400">
+                  </div>
+                  <div class="flex items-center justify-between gap-2">
+                    <label class="text-xs text-gray-500 whitespace-nowrap">觀禮</label>
+                    <input type="number" data-setting-group="signing" data-setting-field="audience" value="15000" min="0" step="1000" data-action="input->concert-calculator#settingChanged" class="w-28 text-sm border border-gray-200 rounded-lg px-2 py-1 text-right focus:outline-none focus:ring-2 focus:ring-blue-400">
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </details>
+
           <!-- 台灣場 -->
           <div class="bg-white rounded-xl border border-gray-200 shadow-sm">
             <div class="px-6 pt-6 pb-4">
@@ -271,9 +353,33 @@
 
       rowCount = 0
 
+      settings = {
+        taiwan:  { ticket: 6000,  transport: 3000  },
+        korea:   { ticket: 4000,  transport: 10000 },
+        japan:   { ticket: 5500,  transport: 13000 },
+        shared:  { accommodation: 2000, food: 1000 },
+        signing: { onstage: 70000, audience: 15000 }
+      }
+
       connect() {
         this.loadState()
         this.calculate()
+      }
+
+      settingChanged(event) {
+        const group = event.currentTarget.dataset.settingGroup
+        const field = event.currentTarget.dataset.settingField
+        const value = parseInt(event.currentTarget.value) || 0
+        if (this.settings[group]) this.settings[group][field] = value
+        this.calculate()
+      }
+
+      updateSettingsInputs() {
+        this.element.querySelectorAll("[data-setting-group]").forEach(input => {
+          const g = input.dataset.settingGroup
+          const f = input.dataset.settingField
+          if (this.settings[g]?.[f] !== undefined) input.value = this.settings[g][f]
+        })
       }
 
       addTaiwan(event) {
@@ -360,7 +466,7 @@
         this.signingListTarget.querySelectorAll("[data-row-id]").forEach(row => {
           const type = row.dataset.rowType
           const count = parseInt(row.querySelector("[data-field='count']").value) || 1
-          const cost = (type === "onstage" ? 70000 : 15000) * count
+          const cost = (type === "onstage" ? this.settings.signing.onstage : this.settings.signing.audience) * count
           row.querySelector("[data-cost='total']").textContent = this.format(cost)
           signingTotal += cost
         })
@@ -440,16 +546,18 @@
       }
 
       computeCosts(location, shows, nights) {
+        const s = this.settings
         let ticket, transport, accommodation, food, misc
         if (location === "taiwan") {
-          ticket = 6000 * shows; transport = 3000; accommodation = 0; food = 0; misc = 200
+          ticket = s.taiwan.ticket * shows; transport = s.taiwan.transport
+          accommodation = 0; food = 0; misc = 200
         } else if (location === "korea") {
-          ticket = 4000 * shows; transport = 10000
-          accommodation = 2000 * nights; food = 1000 * (nights + 1)
+          ticket = s.korea.ticket * shows; transport = s.korea.transport
+          accommodation = s.shared.accommodation * nights; food = s.shared.food * (nights + 1)
           misc = nights === 1 ? 500 : 1500
         } else if (location === "japan") {
-          ticket = 5500 * shows; transport = 13000
-          accommodation = 2000 * nights; food = 1000 * (nights + 1)
+          ticket = s.japan.ticket * shows; transport = s.japan.transport
+          accommodation = s.shared.accommodation * nights; food = s.shared.food * (nights + 1)
           misc = nights === 1 ? 1000 : 2000
         }
         return { ticket, transport, accommodation, food, misc, total: ticket + transport + accommodation + food + misc }
@@ -488,6 +596,7 @@
             amount: parseInt(row.querySelector("[data-field='amount']").value) || 0
           })
         })
+        state.settings = this.settings
         localStorage.setItem("concert_calculator_state", JSON.stringify(state))
       }
 
@@ -502,6 +611,12 @@
           state.signing?.forEach(item => { this.rowCount++; this.signingListTarget.insertAdjacentHTML("beforeend", this.buildSigningRow(this.rowCount, item.type, item.count)) })
           state.other?.forEach(item => { this.rowCount++; this.otherListTarget.insertAdjacentHTML("beforeend", this.buildOtherRow(this.rowCount, item.label, item.amount)) })
           if (state.monthlySavings) this.monthlySavingsTarget.value = state.monthlySavings
+          if (state.settings) {
+            Object.keys(state.settings).forEach(group => {
+              if (this.settings[group]) Object.assign(this.settings[group], state.settings[group])
+            })
+            this.updateSettingsInputs()
+          }
         } catch { localStorage.removeItem("concert_calculator_state") }
       }
 
