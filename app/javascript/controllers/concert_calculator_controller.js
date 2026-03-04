@@ -11,9 +11,9 @@ export default class extends Controller {
   rowCount = 0
 
   settings = {
-    taiwan:  { ticket: 6000,  transport: 3000  },
-    korea:   { ticket: 4000,  transport: 10000 },
-    japan:   { ticket: 5500,  transport: 13000 },
+    taiwan:  { ticket: 6000,  transport: 3000,  misc: 200  },
+    korea:   { ticket: 4000,  transport: 10000, misc: 1000 },
+    japan:   { ticket: 5500,  transport: 13000, misc: 1500 },
     shared:  { accommodation: 2000, food: 1000 },
     signing: { onstage: 70000, audience: 15000 }
   }
@@ -225,19 +225,19 @@ export default class extends Controller {
     if (location === "taiwan") {
       ticket = s.taiwan.ticket * shows
       transport = s.taiwan.transport
-      accommodation = 0; food = 0; misc = 200
+      accommodation = 0; food = 0; misc = s.taiwan.misc
     } else if (location === "korea") {
       ticket = s.korea.ticket * shows
       transport = s.korea.transport
       accommodation = s.shared.accommodation * nights
       food = s.shared.food * (nights + 1)
-      misc = nights === 1 ? 500 : 1500
+      misc = s.korea.misc
     } else if (location === "japan") {
       ticket = s.japan.ticket * shows
       transport = s.japan.transport
       accommodation = s.shared.accommodation * nights
       food = s.shared.food * (nights + 1)
-      misc = nights === 1 ? 1000 : 2000
+      misc = s.japan.misc
     }
 
     return { ticket, transport, accommodation, food, misc, total: ticket + transport + accommodation + food + misc }

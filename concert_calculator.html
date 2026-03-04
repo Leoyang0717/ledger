@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>演唱會預算計算器</title>
+  <title>追星冷靜計算器</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50 min-h-screen">
 
   <header class="bg-white border-b border-gray-200">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
-      <span class="font-bold text-gray-900">演唱會預算計算器</span>
+      <span class="font-bold text-gray-900">追星冷靜計算器</span>
       <button
         onclick="if(confirm('確定要清除所有資料嗎？')){localStorage.removeItem('concert_calculator_state');location.reload()}"
         class="text-xs text-gray-400 hover:text-red-400 transition-colors"
@@ -21,7 +21,7 @@
   <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
     <div data-controller="concert-calculator">
       <div class="mb-6">
-        <h1 class="text-2xl font-bold text-gray-900">演唱會預算計算器</h1>
+        <h1 class="text-2xl font-bold text-gray-900">追星冷靜計算器</h1>
         <p class="text-sm text-gray-400 mt-1">依地點分類規劃行程，計算預計花費</p>
       </div>
 
@@ -49,6 +49,10 @@
                   <div class="flex items-center justify-between gap-2">
                     <label class="text-xs text-gray-500 whitespace-nowrap">交通（固定）</label>
                     <input type="number" data-setting-group="taiwan" data-setting-field="transport" value="3000" min="0" step="500" data-action="input->concert-calculator#settingChanged" class="w-28 text-sm border border-gray-200 rounded-lg px-2 py-1 text-right focus:outline-none focus:ring-2 focus:ring-blue-400">
+                  </div>
+                  <div class="flex items-center justify-between gap-2">
+                    <label class="text-xs text-gray-500 whitespace-nowrap">雜支/趟</label>
+                    <input type="number" data-setting-group="taiwan" data-setting-field="misc" value="200" min="0" step="100" data-action="input->concert-calculator#settingChanged" class="w-28 text-sm border border-gray-200 rounded-lg px-2 py-1 text-right focus:outline-none focus:ring-2 focus:ring-blue-400">
                   </div>
                 </div>
               </div>
@@ -78,6 +82,10 @@
                     <label class="text-xs text-gray-500 whitespace-nowrap">交通（固定）</label>
                     <input type="number" data-setting-group="korea" data-setting-field="transport" value="10000" min="0" step="500" data-action="input->concert-calculator#settingChanged" class="w-28 text-sm border border-gray-200 rounded-lg px-2 py-1 text-right focus:outline-none focus:ring-2 focus:ring-blue-400">
                   </div>
+                  <div class="flex items-center justify-between gap-2">
+                    <label class="text-xs text-gray-500 whitespace-nowrap">雜支/趟</label>
+                    <input type="number" data-setting-group="korea" data-setting-field="misc" value="1000" min="0" step="100" data-action="input->concert-calculator#settingChanged" class="w-28 text-sm border border-gray-200 rounded-lg px-2 py-1 text-right focus:outline-none focus:ring-2 focus:ring-blue-400">
+                  </div>
                 </div>
               </div>
 
@@ -91,6 +99,10 @@
                   <div class="flex items-center justify-between gap-2">
                     <label class="text-xs text-gray-500 whitespace-nowrap">交通（固定）</label>
                     <input type="number" data-setting-group="japan" data-setting-field="transport" value="13000" min="0" step="500" data-action="input->concert-calculator#settingChanged" class="w-28 text-sm border border-gray-200 rounded-lg px-2 py-1 text-right focus:outline-none focus:ring-2 focus:ring-blue-400">
+                  </div>
+                  <div class="flex items-center justify-between gap-2">
+                    <label class="text-xs text-gray-500 whitespace-nowrap">雜支/趟</label>
+                    <input type="number" data-setting-group="japan" data-setting-field="misc" value="1500" min="0" step="100" data-action="input->concert-calculator#settingChanged" class="w-28 text-sm border border-gray-200 rounded-lg px-2 py-1 text-right focus:outline-none focus:ring-2 focus:ring-blue-400">
                   </div>
                 </div>
               </div>
@@ -354,9 +366,9 @@
       rowCount = 0
 
       settings = {
-        taiwan:  { ticket: 6000,  transport: 3000  },
-        korea:   { ticket: 4000,  transport: 10000 },
-        japan:   { ticket: 5500,  transport: 13000 },
+        taiwan:  { ticket: 6000,  transport: 3000,  misc: 200  },
+        korea:   { ticket: 4000,  transport: 10000, misc: 1000 },
+        japan:   { ticket: 5500,  transport: 13000, misc: 1500 },
         shared:  { accommodation: 2000, food: 1000 },
         signing: { onstage: 70000, audience: 15000 }
       }
@@ -550,15 +562,15 @@
         let ticket, transport, accommodation, food, misc
         if (location === "taiwan") {
           ticket = s.taiwan.ticket * shows; transport = s.taiwan.transport
-          accommodation = 0; food = 0; misc = 200
+          accommodation = 0; food = 0; misc = s.taiwan.misc
         } else if (location === "korea") {
           ticket = s.korea.ticket * shows; transport = s.korea.transport
           accommodation = s.shared.accommodation * nights; food = s.shared.food * (nights + 1)
-          misc = nights === 1 ? 500 : 1500
+          misc = s.korea.misc
         } else if (location === "japan") {
           ticket = s.japan.ticket * shows; transport = s.japan.transport
           accommodation = s.shared.accommodation * nights; food = s.shared.food * (nights + 1)
-          misc = nights === 1 ? 1000 : 2000
+          misc = s.japan.misc
         }
         return { ticket, transport, accommodation, food, misc, total: ticket + transport + accommodation + food + misc }
       }
