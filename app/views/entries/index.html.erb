@@ -1,0 +1,156 @@
+<div class="space-y-6">
+  <!-- 月份選擇和新增按鈕 -->
+  <div class="flex justify-between items-center">
+    <div class="flex items-center space-x-4">
+      <%= link_to entries_path(month: @current_month.prev_month.beginning_of_month), class: "p-2 rounded-md hover:bg-gray-100" do %>
+        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+        </svg>
+      <% end %>
+      <h1 class="text-2xl font-bold text-gray-900"><%= @current_month.strftime("%Y年%m月") %></h1>
+      <%= link_to entries_path(month: @current_month.next_month.beginning_of_month), class: "p-2 rounded-md hover:bg-gray-100" do %>
+        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+        </svg>
+      <% end %>
+    </div>
+    <%= link_to "手動新增", new_entry_path, class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700" %>
+  </div>
+
+  <!-- 常用項目快速新增 -->
+  <% if @quick_entries.any? %>
+    <div class="bg-white shadow rounded-lg p-4">
+      <h2 class="text-sm font-medium text-gray-700 mb-3">快速新增</h2>
+      <div class="flex flex-wrap gap-2">
+        <% @quick_entries.group_by(&:entry_type).each do |entry_type, entries| %>
+          <% entries.each do |quick_entry| %>
+            <% if quick_entry.account_id.present? %>
+              <%= button_to create_from_quick_entry_entries_path(quick_entry_id: quick_entry.id),
+                  method: :post,
+                  class: "inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium cursor-pointer transition-colors
+                    #{case entry_type
+                      when 'income' then 'bg-green-50 text-green-700 hover:bg-green-100 border border-green-200'
+                      when 'expense' then 'bg-red-50 text-red-700 hover:bg-red-100 border border-red-200'
+                      else 'bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200'
+                      end}" do %>
+                <%= quick_entry.name %>
+                <span class="ml-1 text-xs opacity-75">$<%= number_with_delimiter(quick_entry.amount.to_i) %></span>
+              <% end %>
+            <% else %>
+              <%= link_to new_entry_path(quick_entry_id: quick_entry.id),
+                  class: "inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium cursor-pointer transition-colors
+                    #{case entry_type
+                      when 'income' then 'bg-green-50 text-green-700 hover:bg-green-100 border border-green-200'
+                      when 'expense' then 'bg-red-50 text-red-700 hover:bg-red-100 border border-red-200'
+                      else 'bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200'
+                      end}" do %>
+                <%= quick_entry.name %>
+                <span class="ml-1 text-xs opacity-75">$<%= number_with_delimiter(quick_entry.amount.to_i) %></span>
+              <% end %>
+            <% end %>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- 本月支出分類圓餅圖 -->
+  <% if @expense_by_category.any? %>
+    <div class="bg-white shadow rounded-lg p-6"
+         data-controller="pie-chart"
+         data-pie-chart-labels-value="<%= @expense_by_category.keys.to_json %>"
+         data-pie-chart-amounts-value="<%= @expense_by_category.values.to_json %>">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-sm font-semibold text-gray-700">支出分類</h2>
+        <span data-pie-chart-target="filterLabel"
+              data-action="click->pie-chart#resetFilter"
+              class="hidden text-sm text-blue-600 cursor-pointer hover:text-blue-800"></span>
+      </div>
+      <div class="flex justify-center">
+        <canvas data-pie-chart-target="canvas" style="max-height: 300px; cursor: pointer;"></canvas>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- 本月記錄列表 -->
+  <div class="bg-white shadow rounded-lg overflow-hidden">
+    <% if @entries.any? %>
+      <% monthly_income = @entries.select(&:income?).sum(&:amount) %>
+      <% monthly_expense = @entries.select(&:expense?).sum(&:amount) %>
+      <div class="px-6 py-4 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
+        <div class="flex space-x-6">
+          <div>
+            <span class="text-sm text-gray-500">收入</span>
+            <span class="ml-2 font-semibold text-green-600">+$<%= number_with_delimiter(monthly_income.to_i) %></span>
+          </div>
+          <div>
+            <span class="text-sm text-gray-500">支出</span>
+            <span class="ml-2 font-semibold text-red-600">-$<%= number_with_delimiter(monthly_expense.to_i) %></span>
+          </div>
+        </div>
+        <div>
+          <span class="text-sm text-gray-500">結餘</span>
+          <span class="ml-2 font-semibold <%= (monthly_income - monthly_expense) >= 0 ? 'text-gray-900' : 'text-red-600' %>">
+            $<%= number_with_delimiter((monthly_income - monthly_expense).to_i) %>
+          </span>
+        </div>
+      </div>
+      <ul class="divide-y divide-gray-200">
+        <% @entries.group_by(&:entry_date).each do |date, day_entries| %>
+          <li class="bg-gray-50 px-6 py-2" data-date-header>
+            <span class="text-sm font-medium text-gray-500"><%= date.strftime("%m/%d (%a)") %></span>
+          </li>
+          <% day_entries.each do |entry| %>
+            <li class="px-6 py-4 flex justify-between items-center hover:bg-gray-50" data-category="<%= entry.category.name %>">
+              <div class="flex items-center space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center
+                  <%= case entry.entry_type
+                      when 'income' then 'bg-green-100 text-green-600'
+                      when 'expense' then 'bg-red-100 text-red-600'
+                      else 'bg-blue-100 text-blue-600'
+                      end %>">
+                  <span class="text-lg font-bold">
+                    <%= case entry.entry_type
+                        when 'income' then '+'
+                        when 'expense' then '-'
+                        else '↔'
+                        end %>
+                  </span>
+                </div>
+                <div>
+                  <p class="text-sm font-medium text-gray-900"><%= entry.description.presence || entry.category.name %></p>
+                  <p class="text-xs text-gray-500">
+                    <%= entry.account.name %>
+                    <% if entry.transfer? && entry.transfer_to_account %>
+                      → <%= entry.transfer_to_account.name %>
+                    <% end %>
+                    · <%= entry.category.name %>
+                  </p>
+                </div>
+              </div>
+              <div class="flex items-center space-x-4">
+                <span class="text-sm font-semibold
+                  <%= case entry.entry_type
+                      when 'income' then 'text-green-600'
+                      when 'expense' then 'text-red-600'
+                      else 'text-blue-600'
+                      end %>">
+                  <%= entry.income? ? '+' : '-' %>$<%= number_with_delimiter(entry.amount.to_i) %>
+                </span>
+                <div class="flex items-center space-x-3">
+                  <%= link_to "編輯", edit_entry_path(entry), class: "text-blue-600 hover:text-blue-900 text-sm" %>
+                  <%= button_to "刪除", entry_path(entry), method: :delete, form: { class: "inline" }, data: { turbo_confirm: "確定要刪除這筆記錄嗎？" }, class: "text-red-600 hover:text-red-900 text-sm" %>
+                </div>
+              </div>
+            </li>
+          <% end %>
+        <% end %>
+      </ul>
+    <% else %>
+      <div class="px-6 py-12 text-center">
+        <p class="text-gray-500">這個月還沒有任何記錄</p>
+        <%= link_to "開始記帳", new_entry_path, class: "mt-2 inline-block text-blue-600 hover:text-blue-800" %>
+      </div>
+    <% end %>
+  </div>
+</div>

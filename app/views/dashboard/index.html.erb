@@ -1,0 +1,101 @@
+<div class="space-y-6">
+  <!-- 帳戶餘額總覽 -->
+  <div class="bg-white shadow rounded-lg p-6">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-lg font-semibold text-gray-900">帳戶餘額</h2>
+      <div class="text-right">
+        <p class="text-sm text-gray-500">總資產</p>
+        <p class="text-2xl font-bold text-gray-900"><%= number_to_currency(@total_balance, unit: "$", precision: 0) %></p>
+      </div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <% @accounts.each do |account| %>
+        <div class="border rounded-lg p-4 <%= account.current_balance >= 0 ? 'border-gray-200' : 'border-red-200 bg-red-50' %>">
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="text-sm text-gray-500"><%= account.name %></p>
+              <p class="text-xl font-semibold <%= account.current_balance >= 0 ? 'text-gray-900' : 'text-red-600' %>">
+                <%= number_to_currency(account.current_balance, unit: "$", precision: 0) %>
+              </p>
+            </div>
+            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
+              <%= case account.account_type
+                  when 'primary' then 'bg-blue-100 text-blue-800'
+                  when 'living' then 'bg-green-100 text-green-800'
+                  when 'loan' then 'bg-yellow-100 text-yellow-800'
+                  when 'investment' then 'bg-purple-100 text-purple-800'
+                  when 'credit_card' then 'bg-red-100 text-red-800'
+                  else 'bg-gray-100 text-gray-800'
+                  end %>">
+              <%= I18n.t("account_types.#{account.account_type}", default: account.account_type) %>
+            </span>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- 本月收支 -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="bg-white shadow rounded-lg p-6">
+      <h3 class="text-sm font-medium text-gray-500 mb-1"><%= @current_month.strftime("%Y年%m月") %> 收入</h3>
+      <p class="text-2xl font-bold text-green-600">+<%= number_to_currency(@monthly_income, unit: "$", precision: 0) %></p>
+    </div>
+    <div class="bg-white shadow rounded-lg p-6">
+      <h3 class="text-sm font-medium text-gray-500 mb-1"><%= @current_month.strftime("%Y年%m月") %> 支出</h3>
+      <p class="text-2xl font-bold text-red-600">-<%= number_to_currency(@monthly_expense, unit: "$", precision: 0) %></p>
+    </div>
+  </div>
+
+  <!-- 最近記錄 -->
+  <div class="bg-white shadow rounded-lg">
+    <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+      <h2 class="text-lg font-semibold text-gray-900">最近記錄</h2>
+      <%= link_to "查看全部", entries_path, class: "text-sm text-blue-600 hover:text-blue-800" %>
+    </div>
+    <% if @recent_entries.any? %>
+      <ul class="divide-y divide-gray-200">
+        <% @recent_entries.each do |entry| %>
+          <li class="px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-4">
+              <div class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center
+                <%= case entry.entry_type
+                    when 'income' then 'bg-green-100'
+                    when 'expense' then 'bg-red-100'
+                    else 'bg-blue-100'
+                    end %>">
+                <span class="text-lg">
+                  <%= case entry.entry_type
+                      when 'income' then '+'
+                      when 'expense' then '-'
+                      else '↔'
+                      end %>
+                </span>
+              </div>
+              <div>
+                <p class="text-sm font-medium text-gray-900"><%= entry.description.presence || entry.category.name %></p>
+                <p class="text-xs text-gray-500"><%= entry.account.name %> · <%= entry.entry_date.strftime("%m/%d") %></p>
+              </div>
+            </div>
+            <div class="text-right">
+              <p class="text-sm font-semibold
+                <%= case entry.entry_type
+                    when 'income' then 'text-green-600'
+                    when 'expense' then 'text-red-600'
+                    else 'text-blue-600'
+                    end %>">
+                <%= entry.income? ? '+' : '-' %><%= number_to_currency(entry.amount, unit: "$", precision: 0) %>
+              </p>
+              <p class="text-xs text-gray-500"><%= entry.category.name %></p>
+            </div>
+          </li>
+        <% end %>
+      </ul>
+    <% else %>
+      <div class="px-6 py-12 text-center">
+        <p class="text-gray-500">還沒有任何記錄</p>
+        <%= link_to "開始記帳", new_entry_path, class: "mt-2 inline-block text-blue-600 hover:text-blue-800" %>
+      </div>
+    <% end %>
+  </div>
+</div>

@@ -1,0 +1,53 @@
+<%= form_with model: entry, class: "space-y-8", data: { controller: "entry-form" } do |f| %>
+  <% if entry.errors.any? %>
+    <div class="rounded-md bg-red-50 p-4">
+      <div class="text-base text-red-700">
+        <ul class="list-disc pl-5 space-y-1">
+          <% entry.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    </div>
+  <% end %>
+
+  <div>
+    <%= f.label :entry_date, "日期", class: "block text-base font-medium text-gray-700 mb-2" %>
+    <%= f.date_field :entry_date, class: "block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-lg py-3 px-4" %>
+  </div>
+
+  <div>
+    <%= f.label :entry_type, "類型", class: "block text-base font-medium text-gray-700 mb-2" %>
+    <%= f.select :entry_type, Entry.entry_types.keys.map { |k| [t("entry_types.#{k}"), k] }, {}, class: "block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-lg py-3 px-4", data: { action: "change->entry-form#toggleTransfer", entry_form_target: "entryType" } %>
+  </div>
+
+  <div>
+    <%= f.label :account_id, "帳戶", class: "block text-base font-medium text-gray-700 mb-2" %>
+    <%= f.collection_select :account_id, Account.order(:account_type, :name), :id, :name, { prompt: "選擇帳戶" }, class: "block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-lg py-3 px-4" %>
+  </div>
+
+  <div data-entry-form-target="transferField" class="<%= entry.transfer? ? '' : 'hidden' %>">
+    <%= f.label :transfer_to_account_id, "轉入帳戶", class: "block text-base font-medium text-gray-700 mb-2" %>
+    <%= f.collection_select :transfer_to_account_id, Account.order(:account_type, :name), :id, :name, { prompt: "選擇轉入帳戶" }, class: "block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-lg py-3 px-4" %>
+  </div>
+
+  <div>
+    <%= f.label :category_id, "分類", class: "block text-base font-medium text-gray-700 mb-2" %>
+    <%= f.collection_select :category_id, Category.order(:transaction_type, :name), :id, :name, { prompt: "選擇分類" }, class: "block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-lg py-3 px-4" %>
+  </div>
+
+  <div>
+    <%= f.label :amount, "金額", class: "block text-base font-medium text-gray-700 mb-2" %>
+    <%= f.number_field :amount, step: 1, min: 1, class: "block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-lg py-3 px-4", placeholder: "0" %>
+  </div>
+
+  <div>
+    <%= f.label :description, "備註", class: "block text-base font-medium text-gray-700 mb-2" %>
+    <%= f.text_field :description, class: "block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-lg py-3 px-4", placeholder: "可選填" %>
+  </div>
+
+  <div class="flex justify-end space-x-4 pt-4">
+    <%= link_to "取消", entries_path, class: "inline-flex items-center px-6 py-3 border border-gray-300 text-base font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50" %>
+    <%= f.submit entry.persisted? ? "更新記帳" : "新增記帳", class: "inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 cursor-pointer" %>
+  </div>
+<% end %>

@@ -1,0 +1,16 @@
+zh-TW:
+  account_types:
+    primary: "主帳戶"
+    living: "生活"
+    loan: "貸款"
+    investment: "投資"
+    other: "其他"
+    credit_card: "信用卡"
+  entry_types:
+    income: "收入"
+    expense: "支出"
+    transfer: "轉帳"
+  transaction_types:
+    income: "收入"
+    expense: "支出"
+    transfer: "轉帳"

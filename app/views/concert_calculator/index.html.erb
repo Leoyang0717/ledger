@@ -1,0 +1,250 @@
+<% content_for :title, "演唱會預算計算器" %>
+
+<div data-controller="concert-calculator">
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold text-gray-900">演唱會預算計算器</h1>
+    <p class="text-sm text-gray-400 mt-1">依地點分類規劃行程，計算預計花費</p>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+
+    <!-- 左：各類別區塊 -->
+    <div class="lg:col-span-2 space-y-4">
+
+      <!-- 台灣場 -->
+      <div class="bg-white rounded-xl border border-gray-200 shadow-sm">
+        <div class="px-6 pt-6 pb-4 pr-6">
+          <div class="flex items-center gap-2 mb-1">
+            <div class="w-2.5 h-2.5 rounded-full bg-blue-400 shrink-0"></div>
+            <h2 class="text-base font-semibold text-gray-800">台灣場</h2>
+          </div>
+          <p class="text-xs text-gray-400 pl-[18px]">高雄 · 門票 NT$6,000/場 · 交通 NT$3,000（固定）</p>
+        </div>
+        <div class="px-4 pb-2">
+          <div data-concert-calculator-target="taiwanList" class="space-y-2"></div>
+        </div>
+        <div class="px-6 py-4 border-t border-gray-100">
+          <button
+            data-action="click->concert-calculator#addTaiwan"
+            class="inline-flex items-center gap-1.5 text-sm font-medium text-blue-500 border border-blue-200 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-colors"
+          >+ 新增台灣場</button>
+        </div>
+      </div>
+
+      <!-- 韓國場 -->
+      <div class="bg-white rounded-xl border border-gray-200 shadow-sm">
+        <div class="px-6 pt-6 pb-4 pr-6">
+          <div class="flex items-center gap-2 mb-1">
+            <div class="w-2.5 h-2.5 rounded-full bg-rose-400 shrink-0"></div>
+            <h2 class="text-base font-semibold text-gray-800">韓國場</h2>
+          </div>
+          <p class="text-xs text-gray-400 pl-[18px]">門票 NT$4,000/場 · 交通 NT$10,000 · 住宿 NT$2,000/晚 · 伙食 NT$1,000/天</p>
+        </div>
+        <div class="px-4 pb-2">
+          <div data-concert-calculator-target="koreaList" class="space-y-2"></div>
+        </div>
+        <div class="px-6 py-4 border-t border-gray-100">
+          <button
+            data-action="click->concert-calculator#addKorea"
+            class="inline-flex items-center gap-1.5 text-sm font-medium text-blue-500 border border-blue-200 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-colors"
+          >+ 新增韓國行程</button>
+        </div>
+      </div>
+
+      <!-- 日本場 -->
+      <div class="bg-white rounded-xl border border-gray-200 shadow-sm">
+        <div class="px-6 pt-6 pb-4 pr-6">
+          <div class="flex items-center gap-2 mb-1">
+            <div class="w-2.5 h-2.5 rounded-full bg-fuchsia-400 shrink-0"></div>
+            <h2 class="text-base font-semibold text-gray-800">日本場</h2>
+          </div>
+          <p class="text-xs text-gray-400 pl-[18px]">門票 NT$5,500/場 · 交通 NT$13,000 · 住宿 NT$2,000/晚 · 伙食 NT$1,000/天</p>
+        </div>
+        <div class="px-4 pb-2">
+          <div data-concert-calculator-target="japanList" class="space-y-2"></div>
+        </div>
+        <div class="px-6 py-4 border-t border-gray-100">
+          <button
+            data-action="click->concert-calculator#addJapan"
+            class="inline-flex items-center gap-1.5 text-sm font-medium text-blue-500 border border-blue-200 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-colors"
+          >+ 新增日本行程</button>
+        </div>
+      </div>
+
+      <!-- 簽售會 -->
+      <div class="bg-white rounded-xl border border-gray-200 shadow-sm">
+        <div class="px-6 pt-6 pb-4 pr-6">
+          <div class="flex items-center gap-2 mb-1">
+            <div class="w-2.5 h-2.5 rounded-full bg-purple-400 shrink-0"></div>
+            <h2 class="text-base font-semibold text-gray-800">簽售會</h2>
+          </div>
+          <p class="text-xs text-gray-400 pl-[18px]">上台 NT$70,000 · 觀禮 NT$15,000</p>
+        </div>
+        <div class="px-4 pb-2">
+          <div data-concert-calculator-target="signingList" class="space-y-2"></div>
+        </div>
+        <div class="px-6 py-4 border-t border-gray-100 flex gap-4">
+          <button
+            data-action="click->concert-calculator#addSigningOnstage"
+            class="inline-flex items-center gap-1.5 text-sm font-medium text-blue-500 border border-blue-200 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-colors"
+          >+ 上台</button>
+          <button
+            data-action="click->concert-calculator#addSigningAudience"
+            class="inline-flex items-center gap-1.5 text-sm font-medium text-blue-500 border border-blue-200 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-colors"
+          >+ 觀禮</button>
+        </div>
+      </div>
+
+      <!-- 其他開銷 -->
+      <div class="bg-white rounded-xl border border-gray-200 shadow-sm">
+        <div class="px-6 pt-6 pb-4 pr-6">
+          <div class="flex items-center gap-2 mb-1">
+            <div class="w-2.5 h-2.5 rounded-full bg-amber-400 shrink-0"></div>
+            <h2 class="text-base font-semibold text-gray-800">其他開銷</h2>
+          </div>
+          <p class="text-xs text-gray-400 pl-[18px]">自訂項目與金額，一併納入總預算</p>
+        </div>
+        <div class="px-4 pb-2">
+          <div data-concert-calculator-target="otherList" class="space-y-2"></div>
+        </div>
+        <div class="px-6 py-4 border-t border-gray-100">
+          <button
+            data-action="click->concert-calculator#addOther"
+            class="inline-flex items-center gap-1.5 text-sm font-medium text-blue-500 border border-blue-200 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-colors"
+          >+ 新增項目</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 右：費用摘要 + 存款試算 -->
+    <div class="lg:col-span-1 sticky top-6 space-y-4">
+      <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+        <h2 class="text-base font-semibold text-gray-800 mb-5">總費用摘要</h2>
+
+        <!-- 演唱會 -->
+        <div class="mb-4">
+          <div class="flex items-center gap-1.5 mb-3">
+            <div class="w-2 h-2 rounded-full bg-blue-400"></div>
+            <span class="text-xs font-medium text-gray-400 uppercase tracking-wide">演唱會</span>
+          </div>
+          <div class="space-y-2 pl-3.5">
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-500">門票</span>
+              <span data-concert-calculator-target="grandTicket" class="font-medium text-gray-700">NT$ 0</span>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-500">交通</span>
+              <span data-concert-calculator-target="grandTransport" class="font-medium text-gray-700">NT$ 0</span>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-500">住宿</span>
+              <span data-concert-calculator-target="grandAccommodation" class="font-medium text-gray-700">NT$ 0</span>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-500">伙食</span>
+              <span data-concert-calculator-target="grandFood" class="font-medium text-gray-700">NT$ 0</span>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-500">雜支</span>
+              <span data-concert-calculator-target="grandMisc" class="font-medium text-gray-700">NT$ 0</span>
+            </div>
+            <div class="flex justify-between text-sm font-semibold pt-2 border-t border-gray-100">
+              <span class="text-gray-600">演唱會小計</span>
+              <span data-concert-calculator-target="grandConcert" class="text-blue-500">NT$ 0</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 簽售會 -->
+        <div class="mb-4">
+          <div class="flex items-center gap-1.5 mb-3">
+            <div class="w-2 h-2 rounded-full bg-purple-400"></div>
+            <span class="text-xs font-medium text-gray-400 uppercase tracking-wide">簽售會</span>
+          </div>
+          <div class="pl-3.5">
+            <div class="flex justify-between text-sm font-semibold">
+              <span class="text-gray-600">簽售會小計</span>
+              <span data-concert-calculator-target="grandSigning" class="text-purple-500">NT$ 0</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 其他開銷 -->
+        <div class="mb-4">
+          <div class="flex items-center gap-1.5 mb-3">
+            <div class="w-2 h-2 rounded-full bg-amber-400"></div>
+            <span class="text-xs font-medium text-gray-400 uppercase tracking-wide">其他開銷</span>
+          </div>
+          <div class="pl-3.5">
+            <div class="flex justify-between text-sm font-semibold">
+              <span class="text-gray-600">其他開銷小計</span>
+              <span data-concert-calculator-target="grandOther" class="text-amber-500">NT$ 0</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 總計 -->
+        <div class="flex justify-between items-baseline pt-4 border-t-2 border-gray-200">
+          <span class="font-bold text-gray-900">總計</span>
+          <span data-concert-calculator-target="grandTotal" class="text-2xl font-bold text-gray-900">NT$ 0</span>
+        </div>
+
+        <!-- 費用基準 -->
+        <details class="mt-6">
+          <summary class="text-xs text-gray-400 cursor-pointer hover:text-gray-500 select-none">費用基準參考</summary>
+          <div class="mt-3 space-y-1 pl-1">
+            <div class="flex justify-between text-xs text-gray-400"><span>台灣票價</span><span>NT$ 6,000/場</span></div>
+            <div class="flex justify-between text-xs text-gray-400"><span>韓國票價</span><span>NT$ 4,000/場</span></div>
+            <div class="flex justify-between text-xs text-gray-400"><span>日本票價</span><span>NT$ 5,500/場</span></div>
+            <div class="flex justify-between text-xs text-gray-400 mt-2"><span>台灣交通</span><span>NT$ 3,000</span></div>
+            <div class="flex justify-between text-xs text-gray-400"><span>韓國交通</span><span>NT$ 10,000</span></div>
+            <div class="flex justify-between text-xs text-gray-400"><span>日本交通</span><span>NT$ 13,000</span></div>
+            <div class="flex justify-between text-xs text-gray-400 mt-2"><span>簽售 上台</span><span>NT$ 70,000</span></div>
+            <div class="flex justify-between text-xs text-gray-400"><span>簽售 觀禮</span><span>NT$ 15,000</span></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- 存款試算 -->
+      <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+        <h2 class="text-base font-semibold text-gray-800 mb-4">存款試算</h2>
+
+        <div class="mb-4">
+          <label class="block text-xs font-medium text-gray-500 mb-1.5">每月可存金額</label>
+          <div class="flex items-center gap-2">
+            <input
+              type="number"
+              data-concert-calculator-target="monthlySavings"
+              data-action="input->concert-calculator#inputChanged"
+              placeholder="0"
+              min="0"
+              step="1000"
+              class="flex-1 text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent text-right tabular-nums"
+            />
+            <span class="text-sm text-gray-400 whitespace-nowrap">元 / 月</span>
+          </div>
+        </div>
+
+        <div class="space-y-2 mb-4">
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-500">一年可存</span>
+            <span data-concert-calculator-target="annualSavings" class="font-medium text-gray-700">NT$ 0</span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-500">目標總額</span>
+            <span data-concert-calculator-target="savingsGoal" class="font-medium text-gray-700">NT$ 0</span>
+          </div>
+        </div>
+
+        <div data-concert-calculator-target="savingsStatus">
+          <div class="rounded-lg bg-gray-50 border border-gray-100 px-4 py-3">
+            <p class="text-xs text-gray-400">輸入每月存款金額以試算</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>

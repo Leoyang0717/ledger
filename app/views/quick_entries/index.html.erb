@@ -1,0 +1,57 @@
+<div class="space-y-6">
+  <div class="flex justify-between items-center">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">常用項目</h1>
+      <p class="mt-1 text-sm text-gray-500">設定常用的收支項目，記帳時可快速帶入</p>
+    </div>
+    <%= link_to "新增常用項目", new_quick_entry_path, class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700" %>
+  </div>
+
+  <div class="bg-white shadow rounded-lg overflow-hidden">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-50">
+        <tr>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">名稱</th>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">類型</th>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">帳戶</th>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">分類</th>
+          <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">金額</th>
+          <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-200">
+        <% @quick_entries.each do |quick_entry| %>
+          <tr>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"><%= quick_entry.name %></td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                <%= case quick_entry.entry_type
+                    when 'income' then 'bg-green-100 text-green-800'
+                    when 'expense' then 'bg-red-100 text-red-800'
+                    else 'bg-blue-100 text-blue-800'
+                    end %>">
+                <%= t("entry_types.#{quick_entry.entry_type}") %>
+              </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              <%= quick_entry.account&.name || "（需選擇）" %>
+              <% if quick_entry.transfer? && quick_entry.transfer_to_account %>
+                <span class="text-gray-400">→</span> <%= quick_entry.transfer_to_account.name %>
+              <% end %>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><%= quick_entry.category.name %></td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right font-semibold">
+              <%= number_to_currency(quick_entry.amount, unit: "$", precision: 0) %>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+              <div class="flex items-center justify-end space-x-3">
+                <%= link_to "編輯", edit_quick_entry_path(quick_entry), class: "text-blue-600 hover:text-blue-900" %>
+                <%= button_to "刪除", quick_entry_path(quick_entry), method: :delete, form: { class: "inline" }, data: { turbo_confirm: "確定要刪除此常用項目嗎？" }, class: "text-red-600 hover:text-red-900" %>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>
