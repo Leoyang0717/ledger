@@ -128,7 +128,7 @@ export default class extends Controller {
     this.koreaListTarget.querySelectorAll("[data-row-id]").forEach(row => {
       if (row.dataset.disabled === "true") { row.querySelector("[data-cost='total']").textContent = "—"; return }
       const shows = parseInt(row.querySelector("[data-field='shows']").value) || 1
-      const nights = parseInt(row.querySelector("[data-field='nights']").value) || 1
+      const nights = parseInt(row.querySelector("[data-field='nights']").value) || 0
       const costs = this.computeCosts("korea", shows, nights)
       row.querySelector("[data-cost='total']").textContent = this.format(costs.total)
       c.ticket += costs.ticket
@@ -142,7 +142,7 @@ export default class extends Controller {
     this.japanListTarget.querySelectorAll("[data-row-id]").forEach(row => {
       if (row.dataset.disabled === "true") { row.querySelector("[data-cost='total']").textContent = "—"; return }
       const shows = parseInt(row.querySelector("[data-field='shows']").value) || 1
-      const nights = parseInt(row.querySelector("[data-field='nights']").value) || 1
+      const nights = parseInt(row.querySelector("[data-field='nights']").value) || 0
       const costs = this.computeCosts("japan", shows, nights)
       row.querySelector("[data-cost='total']").textContent = this.format(costs.total)
       c.ticket += costs.ticket
@@ -295,7 +295,7 @@ export default class extends Controller {
     this.koreaListTarget.querySelectorAll("[data-row-id]").forEach(row => {
       state.korea.push({
         shows: parseInt(row.querySelector("[data-field='shows']").value) || 1,
-        nights: parseInt(row.querySelector("[data-field='nights']").value) || 1,
+        nights: parseInt(row.querySelector("[data-field='nights']").value) || 0,
         note: row.querySelector("[data-field='note']").value || "",
         actual: parseInt(row.querySelector("[data-field='actual']").value) || 0,
         disabled: row.dataset.disabled === "true"
@@ -304,7 +304,7 @@ export default class extends Controller {
     this.japanListTarget.querySelectorAll("[data-row-id]").forEach(row => {
       state.japan.push({
         shows: parseInt(row.querySelector("[data-field='shows']").value) || 1,
-        nights: parseInt(row.querySelector("[data-field='nights']").value) || 1,
+        nights: parseInt(row.querySelector("[data-field='nights']").value) || 0,
         note: row.querySelector("[data-field='note']").value || "",
         actual: parseInt(row.querySelector("[data-field='actual']").value) || 0,
         disabled: row.dataset.disabled === "true"
@@ -418,9 +418,10 @@ export default class extends Controller {
       .map(n => `<option value="${n}" ${n == shows ? "selected" : ""}>${n} 場</option>`)
       .join("")
 
-    const nightsOptions = [1, 2, 3, 4, 5, 6, 7]
-      .map(n => `<option value="${n}" ${n == nights ? "selected" : ""}>${n + 1}天${n}夜</option>`)
-      .join("")
+    const nightsOptions = [
+      `<option value="0" ${nights == 0 ? "selected" : ""}>一天來回</option>`,
+      ...[1, 2, 3, 4, 5, 6, 7].map(n => `<option value="${n}" ${n == nights ? "selected" : ""}>${n + 1}天${n}夜</option>`)
+    ].join("")
 
     const ring = location === "korea" ? "focus:ring-rose-400" : "focus:ring-fuchsia-400"
 
