@@ -534,17 +534,17 @@
         this.grandOtherTarget.textContent = this.format(otherTotal)
         const grandTotal = concertTotal + signingTotal + otherTotal
         this.grandTotalTarget.textContent = this.format(grandTotal)
-        this.actualSpentTarget.textContent = this.format(actualTotal)
-        this.remainingBudgetTarget.textContent = this.format(grandTotal - actualTotal)
-        this.updateSavingsDisplay(grandTotal)
+        this.updateSavingsDisplay(grandTotal, actualTotal)
         this.saveState()
       }
 
-      updateSavingsDisplay(grandTotal) {
+      updateSavingsDisplay(grandTotal, actualTotal = 0) {
         const monthly = parseInt(this.monthlySavingsTarget.value) || 0
         const annual = monthly * 12
         this.annualSavingsTarget.textContent = this.format(annual)
         this.savingsGoalTarget.textContent = this.format(grandTotal)
+        this.actualSpentTarget.textContent = this.format(actualTotal)
+        this.remainingBudgetTarget.textContent = this.format(annual - actualTotal)
 
         if (monthly === 0 || grandTotal === 0) {
           this.savingsStatusTarget.innerHTML = `
