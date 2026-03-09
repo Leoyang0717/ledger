@@ -345,6 +345,16 @@
                 <p class="text-xs text-gray-400">輸入每月存款金額以試算</p>
               </div>
             </div>
+            <div class="mt-4 pt-4 border-t border-gray-100 space-y-2">
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-500">已記錄花費</span>
+                <span data-concert-calculator-target="actualSpent" class="font-medium text-emerald-600">NT$ 0</span>
+              </div>
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-500">剩下可花</span>
+                <span data-concert-calculator-target="remainingBudget" class="font-medium text-gray-700">NT$ 0</span>
+              </div>
+            </div>
           </div>
 
         </div>
@@ -360,7 +370,8 @@
         "taiwanList", "koreaList", "japanList", "signingList", "otherList",
         "grandTicket", "grandTransport", "grandAccommodation", "grandFood", "grandMisc",
         "grandConcert", "grandSigning", "grandOther", "grandTotal",
-        "monthlySavings", "annualSavings", "savingsGoal", "savingsStatus"
+        "monthlySavings", "annualSavings", "savingsGoal", "savingsStatus",
+        "actualSpent", "remainingBudget"
       ]
 
       rowCount = 0
@@ -460,6 +471,7 @@
       calculate() {
         const c = { ticket: 0, transport: 0, accommodation: 0, food: 0, misc: 0 }
         let signingTotal = 0
+        let actualTotal = 0
 
         this.taiwanListTarget.querySelectorAll("[data-row-id]").forEach(row => {
           if (row.dataset.disabled === "true") { row.querySelector("[data-cost='total']").textContent = "—"; return }
@@ -467,6 +479,7 @@
           const costs = this.computeCosts("taiwan", shows, 0)
           row.querySelector("[data-cost='total']").textContent = this.format(costs.total)
           c.ticket += costs.ticket; c.transport += costs.transport; c.misc += costs.misc
+          actualTotal += parseInt(row.querySelector("[data-field='actual']").value) || 0
         })
 
         this.koreaListTarget.querySelectorAll("[data-row-id]").forEach(row => {
@@ -477,6 +490,7 @@
           row.querySelector("[data-cost='total']").textContent = this.format(costs.total)
           c.ticket += costs.ticket; c.transport += costs.transport
           c.accommodation += costs.accommodation; c.food += costs.food; c.misc += costs.misc
+          actualTotal += parseInt(row.querySelector("[data-field='actual']").value) || 0
         })
 
         this.japanListTarget.querySelectorAll("[data-row-id]").forEach(row => {
@@ -487,6 +501,7 @@
           row.querySelector("[data-cost='total']").textContent = this.format(costs.total)
           c.ticket += costs.ticket; c.transport += costs.transport
           c.accommodation += costs.accommodation; c.food += costs.food; c.misc += costs.misc
+          actualTotal += parseInt(row.querySelector("[data-field='actual']").value) || 0
         })
 
         this.signingListTarget.querySelectorAll("[data-row-id]").forEach(row => {
@@ -496,6 +511,7 @@
           const cost = (type === "onstage" ? this.settings.signing.onstage : this.settings.signing.audience) * count
           row.querySelector("[data-cost='total']").textContent = this.format(cost)
           signingTotal += cost
+          actualTotal += parseInt(row.querySelector("[data-field='actual']").value) || 0
         })
 
         let otherTotal = 0
@@ -504,6 +520,7 @@
           const amount = parseInt(row.querySelector("[data-field='amount']").value) || 0
           row.querySelector("[data-cost='total']").textContent = this.format(amount)
           otherTotal += amount
+          actualTotal += parseInt(row.querySelector("[data-field='actual']").value) || 0
         })
 
         const concertTotal = c.ticket + c.transport + c.accommodation + c.food + c.misc
@@ -517,6 +534,8 @@
         this.grandOtherTarget.textContent = this.format(otherTotal)
         const grandTotal = concertTotal + signingTotal + otherTotal
         this.grandTotalTarget.textContent = this.format(grandTotal)
+        this.actualSpentTarget.textContent = this.format(actualTotal)
+        this.remainingBudgetTarget.textContent = this.format(grandTotal - actualTotal)
         this.updateSavingsDisplay(grandTotal)
         this.saveState()
       }
@@ -601,12 +620,13 @@
           monthlySavings: parseInt(this.monthlySavingsTarget.value) || 0
         }
         this.taiwanListTarget.querySelectorAll("[data-row-id]").forEach(row => {
-          state.taiwan.push({ shows: parseInt(row.querySelector("[data-field='shows']").value) || 1, disabled: row.dataset.disabled === "true" })
+          state.taiwan.push({ shows: parseInt(row.querySelector("[data-field='shows']").value) || 1, actual: parseInt(row.querySelector("[data-field='actual']").value) || 0, disabled: row.dataset.disabled === "true" })
         })
         this.koreaListTarget.querySelectorAll("[data-row-id]").forEach(row => {
           state.korea.push({
             shows: parseInt(row.querySelector("[data-field='shows']").value) || 1,
             nights: parseInt(row.querySelector("[data-field='nights']").value) || 1,
+            actual: parseInt(row.querySelector("[data-field='actual']").value) || 0,
             disabled: row.dataset.disabled === "true"
           })
         })
@@ -614,16 +634,18 @@
           state.japan.push({
             shows: parseInt(row.querySelector("[data-field='shows']").value) || 1,
             nights: parseInt(row.querySelector("[data-field='nights']").value) || 1,
+            actual: parseInt(row.querySelector("[data-field='actual']").value) || 0,
             disabled: row.dataset.disabled === "true"
           })
         })
         this.signingListTarget.querySelectorAll("[data-row-id]").forEach(row => {
-          state.signing.push({ type: row.dataset.rowType, count: parseInt(row.querySelector("[data-field='count']").value) || 1, disabled: row.dataset.disabled === "true" })
+          state.signing.push({ type: row.dataset.rowType, count: parseInt(row.querySelector("[data-field='count']").value) || 1, actual: parseInt(row.querySelector("[data-field='actual']").value) || 0, disabled: row.dataset.disabled === "true" })
         })
         this.otherListTarget.querySelectorAll("[data-row-id]").forEach(row => {
           state.other.push({
             label: row.querySelector("[data-field='label']").value || "",
             amount: parseInt(row.querySelector("[data-field='amount']").value) || 0,
+            actual: parseInt(row.querySelector("[data-field='actual']").value) || 0,
             disabled: row.dataset.disabled === "true"
           })
         })
@@ -636,11 +658,11 @@
           const saved = localStorage.getItem("concert_calculator_state")
           if (!saved) return
           const state = JSON.parse(saved)
-          state.taiwan?.forEach(item => { this.rowCount++; this.taiwanListTarget.insertAdjacentHTML("beforeend", this.buildTaiwanRow(this.rowCount, item.shows, item.disabled)) })
-          state.korea?.forEach(item => { this.rowCount++; this.koreaListTarget.insertAdjacentHTML("beforeend", this.buildOverseasRow(this.rowCount, "korea", item.shows, item.nights, item.disabled)) })
-          state.japan?.forEach(item => { this.rowCount++; this.japanListTarget.insertAdjacentHTML("beforeend", this.buildOverseasRow(this.rowCount, "japan", item.shows, item.nights, item.disabled)) })
-          state.signing?.forEach(item => { this.rowCount++; this.signingListTarget.insertAdjacentHTML("beforeend", this.buildSigningRow(this.rowCount, item.type, item.count, item.disabled)) })
-          state.other?.forEach(item => { this.rowCount++; this.otherListTarget.insertAdjacentHTML("beforeend", this.buildOtherRow(this.rowCount, item.label, item.amount, item.disabled)) })
+          state.taiwan?.forEach(item => { this.rowCount++; this.taiwanListTarget.insertAdjacentHTML("beforeend", this.buildTaiwanRow(this.rowCount, item.shows, item.disabled, item.actual || 0)) })
+          state.korea?.forEach(item => { this.rowCount++; this.koreaListTarget.insertAdjacentHTML("beforeend", this.buildOverseasRow(this.rowCount, "korea", item.shows, item.nights, item.disabled, item.actual || 0)) })
+          state.japan?.forEach(item => { this.rowCount++; this.japanListTarget.insertAdjacentHTML("beforeend", this.buildOverseasRow(this.rowCount, "japan", item.shows, item.nights, item.disabled, item.actual || 0)) })
+          state.signing?.forEach(item => { this.rowCount++; this.signingListTarget.insertAdjacentHTML("beforeend", this.buildSigningRow(this.rowCount, item.type, item.count, item.disabled, item.actual || 0)) })
+          state.other?.forEach(item => { this.rowCount++; this.otherListTarget.insertAdjacentHTML("beforeend", this.buildOtherRow(this.rowCount, item.label, item.amount, item.disabled, item.actual || 0)) })
           if (state.monthlySavings) this.monthlySavingsTarget.value = state.monthlySavings
           if (state.settings) {
             Object.keys(state.settings).forEach(group => {
@@ -658,18 +680,19 @@
         return `<svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`
       }
 
-      buildTaiwanRow(id, shows, disabled = false) {
+      buildTaiwanRow(id, shows, disabled = false, actual = 0) {
         const opts = [1,2,3,4].map(n => `<option value="${n}" ${n==shows?"selected":""}>${n} 場</option>`).join("")
         return `<div data-row-id="${id}" data-disabled="${disabled}" class="flex items-center gap-3 bg-gray-50 rounded-lg px-4 py-3 transition-opacity ${disabled ? 'opacity-40' : ''}">
           <select data-field="shows" data-action="change->concert-calculator#inputChanged" class="text-sm bg-white border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-400">${opts}</select>
           <span class="flex-1"></span>
           <span data-cost="total" class="text-sm font-semibold text-gray-700 tabular-nums"></span>
+          <input type="number" data-field="actual" placeholder="實際花費" value="${actual || ''}" min="0" step="100" data-action="input->concert-calculator#inputChanged" class="w-24 text-sm bg-white border border-emerald-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-400 text-right tabular-nums" />
           <button data-action="click->concert-calculator#toggleRow" title="${disabled ? '恢復計算' : '暫時排除'}" class="text-gray-300 hover:text-amber-400 transition-colors shrink-0">${disabled ? this.iconPlay() : this.iconPause()}</button>
           <button data-action="click->concert-calculator#removeRow" class="text-gray-300 hover:text-red-400 text-xl leading-none transition-colors">&times;</button>
         </div>`
       }
 
-      buildOverseasRow(id, location, shows, nights, disabled = false) {
+      buildOverseasRow(id, location, shows, nights, disabled = false, actual = 0) {
         const showsOpts = [1,2,3,4].map(n => `<option value="${n}" ${n==shows?"selected":""}>${n} 場</option>`).join("")
         const nightsOpts = [1,2,3,4,5,6,7].map(n => `<option value="${n}" ${n==nights?"selected":""}>${n+1}天${n}夜</option>`).join("")
         const ring = location === "korea" ? "focus:ring-rose-400" : "focus:ring-fuchsia-400"
@@ -678,12 +701,13 @@
           <select data-field="shows" data-action="change->concert-calculator#inputChanged" class="text-sm bg-white border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 ${ring}">${showsOpts}</select>
           <span class="flex-1"></span>
           <span data-cost="total" class="text-sm font-semibold text-gray-700 tabular-nums"></span>
+          <input type="number" data-field="actual" placeholder="實際花費" value="${actual || ''}" min="0" step="100" data-action="input->concert-calculator#inputChanged" class="w-24 text-sm bg-white border border-emerald-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-400 text-right tabular-nums" />
           <button data-action="click->concert-calculator#toggleRow" title="${disabled ? '恢復計算' : '暫時排除'}" class="text-gray-300 hover:text-amber-400 transition-colors shrink-0">${disabled ? this.iconPlay() : this.iconPause()}</button>
           <button data-action="click->concert-calculator#removeRow" class="text-gray-300 hover:text-red-400 text-xl leading-none transition-colors">&times;</button>
         </div>`
       }
 
-      buildSigningRow(id, type, count, disabled = false) {
+      buildSigningRow(id, type, count, disabled = false, actual = 0) {
         const countOpts = Array.from({length:10},(_,i)=>i+1).map(n=>`<option value="${n}" ${n==count?"selected":""}>${n} 次</option>`).join("")
         const badge = type === "onstage"
           ? `<span class="text-xs font-medium bg-purple-100 text-purple-600 px-2.5 py-1 rounded-full whitespace-nowrap">上台</span>`
@@ -693,20 +717,22 @@
           <select data-field="count" data-action="change->concert-calculator#inputChanged" class="text-sm bg-white border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-purple-400">${countOpts}</select>
           <span class="flex-1"></span>
           <span data-cost="total" class="text-sm font-semibold text-gray-700 tabular-nums"></span>
+          <input type="number" data-field="actual" placeholder="實際花費" value="${actual || ''}" min="0" step="100" data-action="input->concert-calculator#inputChanged" class="w-24 text-sm bg-white border border-emerald-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-400 text-right tabular-nums" />
           <button data-action="click->concert-calculator#toggleRow" title="${disabled ? '恢復計算' : '暫時排除'}" class="text-gray-300 hover:text-amber-400 transition-colors shrink-0">${disabled ? this.iconPlay() : this.iconPause()}</button>
           <button data-action="click->concert-calculator#removeRow" class="text-gray-300 hover:text-red-400 text-xl leading-none transition-colors">&times;</button>
         </div>`
       }
 
-      buildOtherRow(id, label = "", amount = "", disabled = false) {
+      buildOtherRow(id, label = "", amount = "", disabled = false, actual = 0) {
         return `<div data-row-id="${id}" data-disabled="${disabled}" class="flex items-center gap-3 bg-gray-50 rounded-lg px-4 py-3 transition-opacity ${disabled ? 'opacity-40' : ''}">
           <input type="text" data-field="label" placeholder="項目名稱（例：買電視）" value="${label}"
             data-action="input->concert-calculator#inputChanged"
             class="flex-1 text-sm bg-white border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-400 min-w-0" />
-          <input type="number" data-field="amount" placeholder="金額" value="${amount}" min="0" step="1000"
+          <input type="number" data-field="amount" placeholder="預計金額" value="${amount}" min="0" step="1000"
             data-action="input->concert-calculator#inputChanged"
-            class="w-32 text-sm bg-white border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-400 text-right" />
-          <span data-cost="total" class="text-sm font-semibold text-gray-700 tabular-nums w-28 text-right shrink-0">NT$ 0</span>
+            class="w-28 text-sm bg-white border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-400 text-right" />
+          <span data-cost="total" class="text-sm font-semibold text-gray-700 tabular-nums w-24 text-right shrink-0">NT$ 0</span>
+          <input type="number" data-field="actual" placeholder="實際花費" value="${actual || ''}" min="0" step="100" data-action="input->concert-calculator#inputChanged" class="w-24 text-sm bg-white border border-emerald-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-400 text-right tabular-nums" />
           <button data-action="click->concert-calculator#toggleRow" title="${disabled ? '恢復計算' : '暫時排除'}" class="text-gray-300 hover:text-amber-400 transition-colors shrink-0">${disabled ? this.iconPlay() : this.iconPause()}</button>
           <button data-action="click->concert-calculator#removeRow" class="text-gray-300 hover:text-red-400 text-xl leading-none transition-colors">&times;</button>
         </div>`

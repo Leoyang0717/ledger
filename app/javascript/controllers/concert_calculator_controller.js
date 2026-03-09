@@ -5,7 +5,8 @@ export default class extends Controller {
     "taiwanList", "koreaList", "japanList", "signingList", "otherList",
     "grandTicket", "grandTransport", "grandAccommodation", "grandFood", "grandMisc",
     "grandConcert", "grandSigning", "grandOther", "grandTotal",
-    "monthlySavings", "annualSavings", "savingsGoal", "savingsStatus"
+    "monthlySavings", "annualSavings", "savingsGoal", "savingsStatus",
+    "actualSpent", "remainingBudget"
   ]
 
   rowCount = 0
@@ -111,6 +112,7 @@ export default class extends Controller {
   calculate() {
     const c = { ticket: 0, transport: 0, accommodation: 0, food: 0, misc: 0 }
     let signingTotal = 0
+    let actualTotal = 0
 
     this.taiwanListTarget.querySelectorAll("[data-row-id]").forEach(row => {
       if (row.dataset.disabled === "true") { row.querySelector("[data-cost='total']").textContent = "—"; return }
@@ -120,6 +122,7 @@ export default class extends Controller {
       c.ticket += costs.ticket
       c.transport += costs.transport
       c.misc += costs.misc
+      actualTotal += parseInt(row.querySelector("[data-field='actual']").value) || 0
     })
 
     this.koreaListTarget.querySelectorAll("[data-row-id]").forEach(row => {
@@ -133,6 +136,7 @@ export default class extends Controller {
       c.accommodation += costs.accommodation
       c.food += costs.food
       c.misc += costs.misc
+      actualTotal += parseInt(row.querySelector("[data-field='actual']").value) || 0
     })
 
     this.japanListTarget.querySelectorAll("[data-row-id]").forEach(row => {
@@ -146,6 +150,7 @@ export default class extends Controller {
       c.accommodation += costs.accommodation
       c.food += costs.food
       c.misc += costs.misc
+      actualTotal += parseInt(row.querySelector("[data-field='actual']").value) || 0
     })
 
     this.signingListTarget.querySelectorAll("[data-row-id]").forEach(row => {
@@ -155,6 +160,7 @@ export default class extends Controller {
       const cost = (type === "onstage" ? this.settings.signing.onstage : this.settings.signing.audience) * count
       row.querySelector("[data-cost='total']").textContent = this.format(cost)
       signingTotal += cost
+      actualTotal += parseInt(row.querySelector("[data-field='actual']").value) || 0
     })
 
     let otherTotal = 0
@@ -163,6 +169,7 @@ export default class extends Controller {
       const amount = parseInt(row.querySelector("[data-field='amount']").value) || 0
       row.querySelector("[data-cost='total']").textContent = this.format(amount)
       otherTotal += amount
+      actualTotal += parseInt(row.querySelector("[data-field='actual']").value) || 0
     })
 
     const concertTotal = c.ticket + c.transport + c.accommodation + c.food + c.misc
@@ -176,15 +183,17 @@ export default class extends Controller {
     this.grandOtherTarget.textContent = this.format(otherTotal)
     const grandTotal = concertTotal + signingTotal + otherTotal
     this.grandTotalTarget.textContent = this.format(grandTotal)
-    this.updateSavingsDisplay(grandTotal)
+    this.updateSavingsDisplay(grandTotal, actualTotal)
     this.saveState()
   }
 
-  updateSavingsDisplay(grandTotal) {
+  updateSavingsDisplay(grandTotal, actualTotal = 0) {
     const monthly = parseInt(this.monthlySavingsTarget.value) || 0
     const annual = monthly * 12
     this.annualSavingsTarget.textContent = this.format(annual)
     this.savingsGoalTarget.textContent = this.format(grandTotal)
+    this.actualSpentTarget.textContent = this.format(actualTotal)
+    this.remainingBudgetTarget.textContent = this.format(annual - actualTotal)
 
     if (monthly === 0 || grandTotal === 0) {
       this.savingsStatusTarget.innerHTML = `
@@ -278,6 +287,8 @@ export default class extends Controller {
     this.taiwanListTarget.querySelectorAll("[data-row-id]").forEach(row => {
       state.taiwan.push({
         shows: parseInt(row.querySelector("[data-field='shows']").value) || 1,
+        note: row.querySelector("[data-field='note']").value || "",
+        actual: parseInt(row.querySelector("[data-field='actual']").value) || 0,
         disabled: row.dataset.disabled === "true"
       })
     })
@@ -285,6 +296,8 @@ export default class extends Controller {
       state.korea.push({
         shows: parseInt(row.querySelector("[data-field='shows']").value) || 1,
         nights: parseInt(row.querySelector("[data-field='nights']").value) || 1,
+        note: row.querySelector("[data-field='note']").value || "",
+        actual: parseInt(row.querySelector("[data-field='actual']").value) || 0,
         disabled: row.dataset.disabled === "true"
       })
     })
@@ -292,6 +305,8 @@ export default class extends Controller {
       state.japan.push({
         shows: parseInt(row.querySelector("[data-field='shows']").value) || 1,
         nights: parseInt(row.querySelector("[data-field='nights']").value) || 1,
+        note: row.querySelector("[data-field='note']").value || "",
+        actual: parseInt(row.querySelector("[data-field='actual']").value) || 0,
         disabled: row.dataset.disabled === "true"
       })
     })
@@ -299,6 +314,7 @@ export default class extends Controller {
       state.signing.push({
         type: row.dataset.rowType,
         count: parseInt(row.querySelector("[data-field='count']").value) || 1,
+        actual: parseInt(row.querySelector("[data-field='actual']").value) || 0,
         disabled: row.dataset.disabled === "true"
       })
     })
@@ -306,6 +322,7 @@ export default class extends Controller {
       state.other.push({
         label: row.querySelector("[data-field='label']").value || "",
         amount: parseInt(row.querySelector("[data-field='amount']").value) || 0,
+        actual: parseInt(row.querySelector("[data-field='actual']").value) || 0,
         disabled: row.dataset.disabled === "true"
       })
     })
@@ -323,23 +340,23 @@ export default class extends Controller {
 
       state.taiwan?.forEach(item => {
         this.rowCount++
-        this.taiwanListTarget.insertAdjacentHTML("beforeend", this.buildTaiwanRow(this.rowCount, item.shows, item.disabled))
+        this.taiwanListTarget.insertAdjacentHTML("beforeend", this.buildTaiwanRow(this.rowCount, item.shows, item.disabled, item.actual || 0, item.note || ""))
       })
       state.korea?.forEach(item => {
         this.rowCount++
-        this.koreaListTarget.insertAdjacentHTML("beforeend", this.buildOverseasRow(this.rowCount, "korea", item.shows, item.nights, item.disabled))
+        this.koreaListTarget.insertAdjacentHTML("beforeend", this.buildOverseasRow(this.rowCount, "korea", item.shows, item.nights, item.disabled, item.actual || 0, item.note || ""))
       })
       state.japan?.forEach(item => {
         this.rowCount++
-        this.japanListTarget.insertAdjacentHTML("beforeend", this.buildOverseasRow(this.rowCount, "japan", item.shows, item.nights, item.disabled))
+        this.japanListTarget.insertAdjacentHTML("beforeend", this.buildOverseasRow(this.rowCount, "japan", item.shows, item.nights, item.disabled, item.actual || 0, item.note || ""))
       })
       state.signing?.forEach(item => {
         this.rowCount++
-        this.signingListTarget.insertAdjacentHTML("beforeend", this.buildSigningRow(this.rowCount, item.type, item.count, item.disabled))
+        this.signingListTarget.insertAdjacentHTML("beforeend", this.buildSigningRow(this.rowCount, item.type, item.count, item.disabled, item.actual || 0))
       })
       state.other?.forEach(item => {
         this.rowCount++
-        this.otherListTarget.insertAdjacentHTML("beforeend", this.buildOtherRow(this.rowCount, item.label, item.amount, item.disabled))
+        this.otherListTarget.insertAdjacentHTML("beforeend", this.buildOtherRow(this.rowCount, item.label, item.amount, item.disabled, item.actual || 0))
       })
 
       if (state.monthlySavings) {
@@ -368,7 +385,7 @@ export default class extends Controller {
 
   // ── HTML Builders ─────────────────────────────────────
 
-  buildTaiwanRow(id, shows, disabled = false) {
+  buildTaiwanRow(id, shows, disabled = false, actual = 0, note = "") {
     const showsOptions = [1, 2, 3, 4]
       .map(n => `<option value="${n}" ${n == shows ? "selected" : ""}>${n} 場</option>`)
       .join("")
@@ -378,10 +395,11 @@ export default class extends Controller {
         <select
           data-field="shows"
           data-action="change->concert-calculator#inputChanged"
-          class="text-sm bg-white border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+          class="text-sm bg-white border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent shrink-0"
         >${showsOptions}</select>
-        <span class="flex-1"></span>
-        <span data-cost="total" class="text-sm font-semibold text-gray-700 tabular-nums"></span>
+        <input type="text" data-field="note" placeholder="備注" value="${note}" data-action="input->concert-calculator#inputChanged" class="flex-1 min-w-0 text-sm bg-white border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent" />
+        <span data-cost="total" class="text-sm font-semibold text-gray-700 tabular-nums shrink-0"></span>
+        <input type="number" data-field="actual" placeholder="實際" value="${actual || ''}" min="0" step="100" data-action="input->concert-calculator#inputChanged" class="w-30 text-sm bg-white border border-emerald-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent text-right tabular-nums shrink-0" />
         <button
           data-action="click->concert-calculator#toggleRow"
           title="${disabled ? '恢復計算' : '暫時排除'}"
@@ -395,7 +413,7 @@ export default class extends Controller {
     `
   }
 
-  buildOverseasRow(id, location, shows, nights, disabled = false) {
+  buildOverseasRow(id, location, shows, nights, disabled = false, actual = 0, note = "") {
     const showsOptions = [1, 2, 3, 4]
       .map(n => `<option value="${n}" ${n == shows ? "selected" : ""}>${n} 場</option>`)
       .join("")
@@ -411,15 +429,16 @@ export default class extends Controller {
         <select
           data-field="nights"
           data-action="change->concert-calculator#inputChanged"
-          class="text-sm bg-white border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 ${ring} focus:border-transparent"
+          class="text-sm bg-white border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 ${ring} focus:border-transparent shrink-0"
         >${nightsOptions}</select>
         <select
           data-field="shows"
           data-action="change->concert-calculator#inputChanged"
-          class="text-sm bg-white border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 ${ring} focus:border-transparent"
+          class="text-sm bg-white border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 ${ring} focus:border-transparent shrink-0"
         >${showsOptions}</select>
-        <span class="flex-1"></span>
-        <span data-cost="total" class="text-sm font-semibold text-gray-700 tabular-nums"></span>
+        <input type="text" data-field="note" placeholder="備注" value="${note}" data-action="input->concert-calculator#inputChanged" class="flex-1 min-w-0 text-sm bg-white border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 ${ring} focus:border-transparent" />
+        <span data-cost="total" class="text-sm font-semibold text-gray-700 tabular-nums shrink-0"></span>
+        <input type="number" data-field="actual" placeholder="實際" value="${actual || ''}" min="0" step="100" data-action="input->concert-calculator#inputChanged" class="w-30 text-sm bg-white border border-emerald-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent text-right tabular-nums shrink-0" />
         <button
           data-action="click->concert-calculator#toggleRow"
           title="${disabled ? '恢復計算' : '暫時排除'}"
@@ -433,7 +452,7 @@ export default class extends Controller {
     `
   }
 
-  buildOtherRow(id, label = "", amount = "", disabled = false) {
+  buildOtherRow(id, label = "", amount = "", disabled = false, actual = 0) {
     return `
       <div data-row-id="${id}" data-disabled="${disabled}" class="flex items-center gap-3 bg-gray-50 rounded-lg px-4 py-3 transition-opacity ${disabled ? 'opacity-40' : ''}">
         <input
@@ -447,14 +466,15 @@ export default class extends Controller {
         <input
           type="number"
           data-field="amount"
-          placeholder="金額"
+          placeholder="預計金額"
           value="${amount}"
           min="0"
           step="1000"
           data-action="input->concert-calculator#inputChanged"
-          class="w-32 text-sm bg-white border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent text-right"
+          class="w-28 text-sm bg-white border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent text-right"
         />
-        <span data-cost="total" class="text-sm font-semibold text-gray-700 tabular-nums w-28 text-right shrink-0">NT$ 0</span>
+        <span data-cost="total" class="text-sm font-semibold text-gray-700 tabular-nums w-24 text-right shrink-0">NT$ 0</span>
+        <input type="number" data-field="actual" placeholder="實際" value="${actual || ''}" min="0" step="100" data-action="input->concert-calculator#inputChanged" class="w-30 text-sm bg-white border border-emerald-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent text-right tabular-nums shrink-0" />
         <button
           data-action="click->concert-calculator#toggleRow"
           title="${disabled ? '恢復計算' : '暫時排除'}"
@@ -468,7 +488,7 @@ export default class extends Controller {
     `
   }
 
-  buildSigningRow(id, type, count, disabled = false) {
+  buildSigningRow(id, type, count, disabled = false, actual = 0) {
     const countOptions = Array.from({ length: 10 }, (_, i) => i + 1)
       .map(n => `<option value="${n}" ${n == count ? "selected" : ""}>${n} 次</option>`)
       .join("")
@@ -487,6 +507,7 @@ export default class extends Controller {
         >${countOptions}</select>
         <span class="flex-1"></span>
         <span data-cost="total" class="text-sm font-semibold text-gray-700 tabular-nums"></span>
+        <input type="number" data-field="actual" placeholder="實際" value="${actual || ''}" min="0" step="100" data-action="input->concert-calculator#inputChanged" class="w-30 text-sm bg-white border border-emerald-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent text-right tabular-nums shrink-0" />
         <button
           data-action="click->concert-calculator#toggleRow"
           title="${disabled ? '恢復計算' : '暫時排除'}"
