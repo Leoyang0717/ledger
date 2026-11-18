@@ -333,7 +333,7 @@
           <!-- 真實支出 -->
           <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
             <h2 class="text-base font-semibold text-gray-800 mb-1">真實支出</h2>
-            <p class="text-xs text-gray-400 mb-4">依你填的實際金額加總（韓日場為出國開銷，不含門票）</p>
+            <p class="text-xs text-gray-400 mb-4">依你填的實際金額加總</p>
             <div class="space-y-2">
               <div class="flex justify-between text-sm">
                 <span class="flex items-center gap-1.5 text-gray-500"><span class="w-2 h-2 rounded-full bg-blue-400"></span>台灣場</span>
@@ -773,7 +773,7 @@
           ${this.ticketToggleHTML(hasTicket)}
           <input type="text" data-field="note" placeholder="備注" value="${note}" data-action="input->concert-calculator#inputChanged" class="flex-1 min-w-[8rem] sm:min-w-0 text-sm bg-white border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 ${ring}" />
           <span data-cost="total" class="text-sm font-semibold text-gray-700 tabular-nums shrink-0"></span>
-          <input type="number" data-field="actual" placeholder="實際" title="這趟出國開銷（不含門票）" value="${actual || ''}" min="0" step="100" data-action="input->concert-calculator#inputChanged" class="w-24 text-sm bg-white border border-emerald-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-400 text-right tabular-nums shrink-0" />
+          <input type="number" data-field="actual" placeholder="實際" title="這趟實際總花費（門票＋交通＋住宿＋吃等）" value="${actual || ''}" min="0" step="100" data-action="input->concert-calculator#inputChanged" class="w-24 text-sm bg-white border border-emerald-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-400 text-right tabular-nums shrink-0" />
           <button data-action="click->concert-calculator#toggleRow" title="${disabled ? '恢復計算' : '暫時排除'}" class="text-gray-300 hover:text-amber-400 transition-colors shrink-0">${disabled ? this.iconPlay() : this.iconPause()}</button>
           <button data-action="click->concert-calculator#removeRow" class="text-gray-300 hover:text-red-400 text-xl leading-none transition-colors">&times;</button>
         </div>`
